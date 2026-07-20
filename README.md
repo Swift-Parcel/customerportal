@@ -291,8 +291,7 @@ Your application communicates with the C# team's Back-Office system. Both teams 
 2. Database schema DDL (your own tables)
 3. API documentation (clear enough for the FE team and C# team to consume without asking questions)
 4. Integration verified end-to-end with the C# backend
-5. Test scenarios demonstrating all features (including pricing edge cases)
-6. Brief document of design decisions, architecture, and trade-offs
+5. Brief document of design decisions, architecture, and trade-offs
 
 ## Notes
 
