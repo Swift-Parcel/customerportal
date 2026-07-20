@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=customerportal'
+      - 'POSTGRES_PASSWORD=mysecretisthebestsecret'
+      - 'POSTGRES_USER=customerportal'
+    ports:
+      - '5432'
+  redis:
+    image: 'redis:latest'
+    ports:
+      - '6379'
