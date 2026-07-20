@@ -1,5 +1,9 @@
 # SwiftParcel Customer Portal API (Java Team)
 
+## For C# Team Members
+
+To start the application, simply execute `./start.sh` in the project root. This will set up the database, run migrations, and start the Spring Boot application in Docker. Ensure you have Docker installed and running.
+
 ## Project Overview
 
 This is one half of the SwiftParcel internship project. Two teams are building two backend applications that must integrate with each other:

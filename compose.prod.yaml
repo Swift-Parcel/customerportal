@@ -1,0 +1,48 @@
+services:
+  app:
+    build:
+      context: .
+    image: customerportal:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SPRING_DOCKER_COMPOSE_ENABLED: 'false'
+      SPRING_DATASOURCE_URL: 'jdbc:postgresql://postgres:5432/customerportal'
+      SPRING_DATASOURCE_USERNAME: 'customerportal'
+      SPRING_DATASOURCE_PASSWORD: 'mysecretisthebestsecret'
+      SPRING_DATA_REDIS_HOST: 'redis'
+      SPRING_DATA_REDIS_PORT: '6379'
+    ports:
+      - '8080:8080'
+
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=customerportal'
+      - 'POSTGRES_PASSWORD=mysecretisthebestsecret'
+      - 'POSTGRES_USER=customerportal'
+    expose:
+      - '5432'
+    volumes:
+      - 'postgres-data:/var/lib/postgresql'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U customerportal -d customerportal']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: 'redis:latest'
+    expose:
+      - '6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
