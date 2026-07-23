@@ -3,9 +3,6 @@ package com.swiftparcel.customerportal.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.UUID;
 
 @Entity
 @Builder
@@ -19,10 +16,6 @@ import java.util.UUID;
 public class Customer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private Long id;
-
-    @Column(nullable = false, unique = true, length = 255)
     private String email;
 
     @Column(name = "full_name", nullable = false, length = 150)
