@@ -1,4 +1,4 @@
-package com.swiftparcel.customerportal.auth.dto;
+package com.swiftparcel.customerportal.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
