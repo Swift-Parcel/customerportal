@@ -16,6 +16,10 @@ import lombok.experimental.FieldDefaults;
 public class Customer {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 255)
     private String email;
 
     @Column(name = "full_name", nullable = false, length = 150)
@@ -26,4 +30,11 @@ public class Customer {
 
     @Column(name = "password_hash", nullable = false, length = 60)
     private String passwordHash;
+
+    @Column(name = "preferred_language", length = 10)
+    private String preferredLanguage;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "default_address_id", referencedColumnName = "id")
+    private Address defaultAddress;
 }
