@@ -1,4 +1,4 @@
-package com.swiftparcel.customerportal.Demo;
+package com.swiftparcel.customerportal.auth;
 
 
 import lombok.RequiredArgsConstructor;
