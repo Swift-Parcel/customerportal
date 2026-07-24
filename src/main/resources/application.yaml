@@ -1,3 +1,9 @@
 spring:
   application:
     name: customerportal
+
+app:
+  jwt:
+    issuer: swiftparcel-customer-portal
+    secret: ${JWT_SECRET:dev-only-secret-change-me-min-32-bytes-0123456789}
+    access-token-ttl: PT15M
