@@ -1,4 +1,4 @@
-package com.swiftparcel.customerportal.auth;
+package com.swiftparcel.customerportal.auth.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -35,4 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         return null;
     }
+
+
 }
