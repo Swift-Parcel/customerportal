@@ -23,12 +23,16 @@ import java.util.UUID;
 @ToString
 public class Customer implements  UserDetails{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private Long id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.UUID)
+//    private Long id;
 
-    @Column(nullable = false, unique = true, length = 255)
+    @Id
+    @Column(nullable = false)
     private String email;
+//    Issue with id and email. Commented while it's fixed in other branches
+//    @Column(nullable = false, unique = true, length = 255)
+//    private String email;
 
     @Column(name = "full_name", nullable = false, length = 150)
     private String fullName;
@@ -49,12 +53,12 @@ public class Customer implements  UserDetails{
 
     @Override
     public @Nullable String getPassword() {
-        return "";
+        return passwordHash;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return email;
     }
 
     @Override
