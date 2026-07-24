@@ -19,7 +19,7 @@ import java.util.UUID;
 public class Customer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true, length = 255)
@@ -33,4 +33,5 @@ public class Customer {
 
     @Column(name = "password_hash", nullable = false, length = 60)
     private String passwordHash;
+
 }
