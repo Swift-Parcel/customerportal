@@ -16,20 +16,6 @@ public class CustomerAccountRequest {
     String email;
     String fullName;
     String phoneNumber;
-    @Setter(AccessLevel.NONE)
     String passwordHash;
-
-
-    @JsonProperty("password")
-    public void setAndHashPassword(String password) {
-        if (password != null && !password.isEmpty()) {
-            this.passwordHash = org.springframework.security.crypto.bcrypt.BCrypt.hashpw(
-                    password,
-                    org.springframework.security.crypto.bcrypt.BCrypt.gensalt()
-            );
-
-            password = null;
-        }
-    }
 
 }

@@ -9,3 +9,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  backoffice:
+    base-url: ${BACKOFFICE_BASE_URL:http://localhost:5000}
+    api-key: ${BACKOFFICE_API_KEY:dev-key}
+    timeout-ms: 5000
