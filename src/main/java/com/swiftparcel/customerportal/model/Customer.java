@@ -39,6 +39,13 @@ public class Customer implements  UserDetails{
     @Column(name = "password_hash", nullable = false, length = 60)
     private String passwordHash;
 
+    @Column(name = "preferred_language", length = 10)
+    private String preferredLanguage;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "default_address_id", referencedColumnName = "id")
+    private Address defaultAddress;
+
 
     // Authentication Methods
     @Override
