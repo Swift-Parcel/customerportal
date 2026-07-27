@@ -3,7 +3,7 @@ spring:
     name: customerportal
 
   datasource:
-    url: jdbc:postgresql://localhost:32775/customerportal
+    url: jdbc:postgresql://localhost:5432/customerportal
     username: customerportal
     password: mysecretisthebestsecret
     driver-class-name: org.postgresql.Driver
@@ -22,3 +22,7 @@ springdoc:
   swagger-ui:
     path: /swagger-ui-custom.html
     operationsSorter: method
+
+external:
+  api:
+    backoffice-url: ${BACKOFFICE_API_URL:https://api-integration.free.beeceptor.com/api/integration/parcel}
