@@ -30,7 +30,7 @@ public class AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-        Customer customer = customerRepository.findByEmail(request.getEmail().toLowerCase())
+        Customer customer = customerRepository.getCustomerFromDb(request.getEmail().toLowerCase())
                 .orElseThrow(() -> new UsernameNotFoundException("Customer not found"));
 
         return build(customer, refreshTokenService.issue(customer));

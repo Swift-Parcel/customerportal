@@ -6,19 +6,22 @@ spring:
     username: customerportal
     password: mysecretisthebestsecret
     driver-class-name: org.postgresql.Driver
-
-    jpa:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    open-in-view: false
+    properties:
       hibernate:
-        ddl-auto: validate
-      show-sql: true
-      properties:
-        hibernate:
-          dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   error:
     include-stacktrace: never
 
+logging:
+  level:
+    org.springframework.security: DEBUG
 
 app:
   jwt:
@@ -26,5 +29,7 @@ app:
     secret: ${JWT_SECRET:dev-only-secret-change-me-min-32-bytes-0123456789}
     access-token-ttl: PT15M
     refresh-token-ttl: P7D
-
-
+  backoffice:
+    base-url: ${BACKOFFICE_BASE_URL:http://localhost:5000}
+    api-key: ${BACKOFFICE_API_KEY:dev-key}
+    timeout-ms: 5000

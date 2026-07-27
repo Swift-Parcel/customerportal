@@ -23,16 +23,12 @@ import java.util.UUID;
 @ToString
 public class Customer implements  UserDetails{
 
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.UUID)
-//    private Long id;
-
     @Id
-    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 255)
     private String email;
-//    Issue with id and email. Commented while it's fixed in other branches
-//    @Column(nullable = false, unique = true, length = 255)
-//    private String email;
 
     @Column(name = "full_name", nullable = false, length = 150)
     private String fullName;
@@ -80,4 +76,14 @@ public class Customer implements  UserDetails{
     public boolean isEnabled() {
         return true;
     }
+
+
+
+//    @Enumerated(EnumType.STRING)
+//    @Column(name = "backoffice_sync_status", nullable = false, length = 20)
+////    private BackofficeSyncStatus backofficeSyncStatus;   // PENDING, SYNCED, FAILED
+//
+//    @Column(name = "backoffice_id")
+//    private String backofficeId;
+
 }
