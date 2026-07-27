@@ -34,7 +34,7 @@ public class CustomerService {
                 .email(customerAccountRequest.getEmail())
                 .fullName(customerAccountRequest.getFullName())
                 .phoneNumber(customerAccountRequest.getPhoneNumber())
-                .passwordHash(bCryptPasswordEncoder.encode(customerAccountRequest.getPasswordHash()))
+                .password(bCryptPasswordEncoder.encode(customerAccountRequest.getPassword()))
                 .build();
 
         Customer savedCustomer = customerRepository.save(customer);

@@ -37,7 +37,7 @@ public class Customer implements  UserDetails{
     private String phoneNumber;
 
     @Column(name = "password_hash", nullable = false, length = 60)
-    private String passwordHash;
+    private String password;
 
     @Column(name = "preferred_language", length = 10)
     private String preferredLanguage;
@@ -56,7 +56,7 @@ public class Customer implements  UserDetails{
 
     @Override
     public @Nullable String getPassword() {
-        return passwordHash;
+        return password;
     }
 
     @Override
