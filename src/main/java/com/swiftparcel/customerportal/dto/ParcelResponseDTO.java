@@ -11,6 +11,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ParcelResponseDTO {
-    @JsonValue
     private List<ParcelDTO> parcels;
 }

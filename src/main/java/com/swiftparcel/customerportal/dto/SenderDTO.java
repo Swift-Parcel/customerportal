@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SenderDTO {
     private String email;
-    @JsonProperty("recipient_address")
+    @JsonProperty("sender_address")
     private AddressDTO address;
 }
