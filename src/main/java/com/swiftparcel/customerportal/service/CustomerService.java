@@ -1,4 +1,4 @@
-package com.swiftparcel.customerportal.services;
+package com.swiftparcel.customerportal.service;
 
 import com.swiftparcel.customerportal.dto.CustomerDTO;
 import com.swiftparcel.customerportal.dto.AddressDTO;

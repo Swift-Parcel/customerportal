@@ -1,7 +1,7 @@
-package com.swiftparcel.customerportal.controllers;
+package com.swiftparcel.customerportal.controller;
 
 import com.swiftparcel.customerportal.dto.ParcelDTO;
-import com.swiftparcel.customerportal.services.ParcelService;
+import com.swiftparcel.customerportal.service.ParcelService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

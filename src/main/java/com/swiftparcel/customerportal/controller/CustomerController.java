@@ -1,7 +1,7 @@
-package com.swiftparcel.customerportal.controllers;
+package com.swiftparcel.customerportal.controller;
 
 import com.swiftparcel.customerportal.dto.CustomerDTO;
-import com.swiftparcel.customerportal.services.CustomerService;
+import com.swiftparcel.customerportal.service.CustomerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
