@@ -4,13 +4,9 @@ import com.swiftparcel.customerportal.dto.CustomerAccountRequest;
 import com.swiftparcel.customerportal.dto.CustomerAccountResponse;
 import com.swiftparcel.customerportal.model.Customer;
 import com.swiftparcel.customerportal.repository.CustomerRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +19,7 @@ public class CustomerService {
 
 
     public CustomerAccountResponse createCustomer(CustomerAccountRequest customerAccountRequest) {
-        if(customerAccountRequest == null){
+        if (customerAccountRequest == null) {
             return null;
         }
 
@@ -43,12 +39,11 @@ public class CustomerService {
                 .phoneNumber(savedCustomer.getPhoneNumber())
                 .build();
     }
-    public void deleteCustomer(Long customerId) {
-        customerRepository.findById(customerId).orElseThrow(() -> new RuntimeException());
-        customerRepository.deleteById(customerId);
+
+    public void deleteCustomer(String email) {
+        customerRepository.deleteByEmail(email);
 
     }
-
 
 
 //    @Transactional
@@ -84,4 +79,4 @@ public class CustomerService {
 //    }
 
 
-    }
+}

@@ -14,14 +14,14 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
-    @PostMapping("/createCustomer")
+    @PostMapping
     public CustomerAccountResponse createCustomer(@RequestBody CustomerAccountRequest userRequest){
         return customerService.createCustomer(userRequest);
     }
 
-    @DeleteMapping("/deleteCustomer/{customerId}")
-    public void deleteCustomer(@PathVariable Long customerId){
-        customerService.deleteCustomer(customerId);
+    @DeleteMapping
+    public void deleteCustomer(@RequestBody String email){
+        customerService.deleteCustomer(email);
     }
 
 }

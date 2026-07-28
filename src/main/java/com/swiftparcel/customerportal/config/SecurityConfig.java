@@ -22,7 +22,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/customerportal/customer/createCustomer").permitAll()
+                        .requestMatchers("/api/customerportal/customer").permitAll()
                         .anyRequest().authenticated()
                 );
 

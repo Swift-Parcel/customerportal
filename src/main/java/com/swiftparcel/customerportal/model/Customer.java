@@ -36,11 +36,12 @@ public class Customer {
 
 
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "backoffice_sync_status", nullable = false, length = 20)
-    private BackofficeSyncStatus backofficeSyncStatus;   // PENDING, SYNCED, FAILED
 
-    @Column(name = "backoffice_id")
-    private String backofficeId;
+//    @Enumerated(EnumType.STRING)
+//    @Column(name = "backoffice_sync_status", nullable = false, length = 20)
+//    private BackofficeSyncStatus backofficeSyncStatus;   // PENDING, SYNCED, FAILED
+//
+//    @Column(name = "backoffice_id")
+//    private String backofficeId;
 
 }
