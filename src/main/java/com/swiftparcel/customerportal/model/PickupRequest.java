@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity
@@ -15,6 +14,7 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class PickupRequest {
@@ -23,24 +23,21 @@ public class PickupRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "customer_id", nullable = false)
-    Customer sender;
+    @Column(name = "customer_id", nullable = false, length = 150)
+    Long customerId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 24)
-    CurrentStatus currentStatus;
+    CurrentStatus currentStatus = CurrentStatus.DRAFT;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "sender_address_id", nullable = false)
-    Address senderAddress;
+    @Column(name = "sender_address_id", nullable = false, length = 150)
+    Long senderAddress;
 
     @Column(name = "recipient_name", nullable = false, length = 150)
     String recipientName;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "recipient_address_id", nullable = false)
-    Address recipientAddress;
+    @Column(name = "recipient_address_id", nullable = false, length = 150)
+    Long recipientAddress;
 
     @Column(name = "weight_kg", nullable = false)
     float parcelWeight;
