@@ -33,14 +33,10 @@ public class ParcelService {
             return Collections.emptyList();
         }
 
-        List<ParcelDTO> parcels = response.getParcels();
-
-        if (skip != null && skip > 0) {
-            parcels = parcels.stream().skip(skip).collect(Collectors.toList());
-        }
-        if (limit != null && limit > 0) {
-            parcels = parcels.stream().limit(limit).collect(Collectors.toList());
-        }
+        List<ParcelDTO> parcels = response.getParcels().stream()
+                .skip(skip != null && skip > 0 ? skip : 0)
+                .limit(limit != null && limit > 0 ? limit : Long.MAX_VALUE)
+                .collect(Collectors.toList());
 
         return parcels;
     }
