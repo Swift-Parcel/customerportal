@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-//    private final AuthenticationProvider authenticationProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws  Exception{
@@ -34,7 +33,6 @@ public class SecurityConfig {
                                  .requestMatchers("/api/customerportal/auth/login", "/api/customerportal/auth/refresh", "/api/customerportal/error", "/api/customerportal/customer/createCustomer").permitAll()
                                  .anyRequest().authenticated())
                 .sessionManagement(sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
