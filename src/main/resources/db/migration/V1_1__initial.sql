@@ -8,12 +8,13 @@ CREATE TABLE public.address
 
 CREATE TABLE public.customer
 (
-    id                 BIGSERIAL PRIMARY KEY,
+    id                 BIGSERIAL,
     email              VARCHAR(255) UNIQUE NOT NULL,
     full_name          VARCHAR(150)        NOT NULL,
     phone_number       VARCHAR(30)         NOT NULL,
     password_hash      VARCHAR(60)         NOT NULL,
     preferred_language VARCHAR(10),
     default_address_id BIGINT,
-    CONSTRAINT fk_customer_address FOREIGN KEY (default_address_id) REFERENCES public.address (id)
+    CONSTRAINT fk_customer_address FOREIGN KEY (default_address_id) REFERENCES public.address (id),
+    PRIMARY KEY (id)
 );

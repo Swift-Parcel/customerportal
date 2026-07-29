@@ -1,5 +1,7 @@
 package com.swiftparcel.customerportal.controller;
 
+import com.swiftparcel.customerportal.dto.CustomerAccountRequest;
+import com.swiftparcel.customerportal.dto.CustomerAccountResponse;
 import com.swiftparcel.customerportal.dto.CustomerDTO;
 import com.swiftparcel.customerportal.service.CustomerService;
 import org.springframework.http.ResponseEntity;
@@ -27,4 +29,15 @@ public class CustomerController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @PostMapping("/createCustomer")
+    public CustomerAccountResponse createCustomer(@RequestBody CustomerAccountRequest userRequest){
+        return customerService.createCustomer(userRequest);
+    }
+
+    @DeleteMapping("/deleteCustomer/{customerId}")
+    public void deleteCustomer(@PathVariable Long customerId){
+        customerService.deleteCustomer(customerId);
+    }
+
 }
