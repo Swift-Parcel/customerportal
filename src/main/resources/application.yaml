@@ -9,7 +9,15 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  backoffice:
-    base-url: ${BACKOFFICE_BASE_URL:http://localhost:5000}
-    api-key: ${BACKOFFICE_API_KEY:dev-key}
-    timeout-ms: 5000
+
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui-custom.html
+    operationsSorter: method
+
+external:
+  api:
+    backoffice-url: ${BACKOFFICE_API_URL:https://api-integration.free.beeceptor.com/api/integration/parcel}
