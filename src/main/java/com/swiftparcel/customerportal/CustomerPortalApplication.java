@@ -2,11 +2,9 @@ package com.swiftparcel.customerportal;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-
-import java.time.Instant;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
@@ -16,5 +14,8 @@ public class CustomerPortalApplication {
 		SpringApplication.run(CustomerPortalApplication.class, args);
 	}
 
-
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
 }

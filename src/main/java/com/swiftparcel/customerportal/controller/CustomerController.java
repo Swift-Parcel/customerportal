@@ -3,16 +3,13 @@ package com.swiftparcel.customerportal.controller;
 import com.swiftparcel.customerportal.dto.CustomerAccountRequest;
 import com.swiftparcel.customerportal.dto.CustomerAccountResponse;
 import com.swiftparcel.customerportal.dto.CustomerDTO;
-import com.swiftparcel.customerportal.repository.CustomerRepository;
 import com.swiftparcel.customerportal.service.CustomerService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/customerportal/customer")
 public class CustomerController {
-
     private final CustomerService customerService;
 
     public CustomerController(CustomerService customerService) {

@@ -17,4 +17,7 @@ public class AddressDTO {
     private String postalCode;
     @JsonProperty("country_code")
     private String countryCode;
+    private String street;
+    @JsonProperty("street_number")
+    private String streetNumber;
 }
