@@ -23,20 +23,21 @@ public class PickupRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column(name = "customer_id", nullable = false, length = 150)
+    @Column(name = "customer_id", nullable = false)
     Long customerId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 24)
+    @Builder.Default
     CurrentStatus currentStatus = CurrentStatus.DRAFT;
 
-    @Column(name = "sender_address_id", nullable = false, length = 150)
+    @Column(name = "sender_address_id", nullable = false)
     Long senderAddress;
 
     @Column(name = "recipient_name", nullable = false, length = 150)
     String recipientName;
 
-    @Column(name = "recipient_address_id", nullable = false, length = 150)
+    @Column(name = "recipient_address_id", nullable = false)
     Long recipientAddress;
 
     @Column(name = "weight_kg", nullable = false)
