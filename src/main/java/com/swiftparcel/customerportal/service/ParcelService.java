@@ -27,11 +27,7 @@ public class ParcelService {
                 .queryParam("customerEmail", customerEmail)
                 .toUriString();
 
-        System.out.println(url);
-
         ParcelResponseDTO response = restTemplate.getForObject(url, ParcelResponseDTO.class);
-
-        System.out.println(response);
 
         if (response == null || response.getParcels() == null) {
             return Collections.emptyList();
