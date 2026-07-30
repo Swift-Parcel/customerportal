@@ -18,52 +18,16 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ParcelDetailResponse {
-//    {
-//        parcel_status: enum,
-//        location: {
-//            "facility" : "string ",
-//                    " city " : " string ",
-//                    " country_code ": " string ",
-//                    "postal_code": "string",
-//                    " lat": "double",
-//                    "lon": "double"
-//        },
-//        tracking_history: [
-//        {
-//            "timestamp": "localDate",
-//                "parcel_status": "enum",
-//                " description": "string",
-//                location: {
-//            " facility": "string",
-//                    " city":" string",
-//                    "  country_code": "string",
-//                    " postal_code":" string",
-//                    "lat": "double",
-//                    "lon": "double"
-//        },
-//
-//        },
-//    ]
-
-//    private String trackingNumber;
-//    private String status;
 
     @JsonProperty("tracking_history")
     private List<TrackingEvent> tracking_history;
     private Location location;
 
-
-//    private LocalDate estimatedDeliveryDate;
-//    private Party sender;
-//    private Party recipient;
-//    private Long weightKg;
-//    private String serviceType;
-//    private Long declaredValue;
 }
 
 @Data
 @Builder
-@NoArgsConstructor  // <--- ADD THIS
+@NoArgsConstructor
 @AllArgsConstructor
 class TrackingEvent {
 
@@ -88,7 +52,7 @@ class Location {
 
 @Data
 @Builder
-@NoArgsConstructor  // <--- ADD THIS
+@NoArgsConstructor
 @AllArgsConstructor
 class Party {
     private String fullName;

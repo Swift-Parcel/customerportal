@@ -2,7 +2,6 @@ package com.swiftparcel.customerportal.service;
 
 import com.swiftparcel.customerportal.dto.ParcelDetailResponse;
 import com.swiftparcel.customerportal.dto.ScheduleResponse;
-import com.swiftparcel.customerportal.repository.ParcelRepository;
 import org.hibernate.annotations.processing.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
