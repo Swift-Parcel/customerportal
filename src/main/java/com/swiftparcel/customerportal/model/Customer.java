@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Builder
@@ -84,13 +83,5 @@ public class Customer implements  UserDetails{
         return true;
     }
 
-
-
-//    @Enumerated(EnumType.STRING)
-//    @Column(name = "backoffice_sync_status", nullable = false, length = 20)
-////    private BackofficeSyncStatus backofficeSyncStatus;   // PENDING, SYNCED, FAILED
-//
-//    @Column(name = "backoffice_id")
-//    private String backofficeId;
 
 }
