@@ -45,6 +45,9 @@ public class Customer implements  UserDetails{
     @JoinColumn(name = "default_address_id", referencedColumnName = "id")
     private Address defaultAddress;
 
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
+    private NotificationPreference notificationPreference;
+
 
     // Authentication Methods
     @Override
