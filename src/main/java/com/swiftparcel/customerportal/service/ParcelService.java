@@ -37,8 +37,14 @@ public class ParcelService {
 
     public ScheduleResponse getSchedule(String trackingNumber) {
         validate(trackingNumber);
+
+        String url2 = UriComponentsBuilder.fromUriString(backendUrl)
+                .queryParam("trackingNumber", trackingNumber)
+                .toUriString();
+
+
         return restTemplate.getForObject(
-                backendUrl + "/api/parcels/" + trackingNumber + "/schedule",
+                url2,
                 ScheduleResponse.class);
     }
 
