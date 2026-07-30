@@ -20,11 +20,11 @@ public class PickupRequestDTO {
     @Max(value = 5000, message = "Declared value cannot exceed €5,000.")
     private float declaredValue;
     @Max(value = 120, message = "Maximum single dimension: 120cm.")
-    private float parcelHeight;
+    private int parcelHeight;
     @Max(value = 120, message = "Maximum single dimension: 120cm.")
-    private float parcelLength;
+    private int parcelLength;
     @Max(value = 120, message = "Maximum single dimension: 120cm.")
-    private float parcelWidth;
+    private int parcelWidth;
     @Max(value = 30, message = "Maximum parcel weight: 30kg.")
     private float parcelWeight;
     @NotNull(message = "Preferred time slot is required")
