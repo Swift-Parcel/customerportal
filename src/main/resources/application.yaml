@@ -1,15 +1,19 @@
 spring:
   application:
     name: customerportal
+  datasource:
+    url: jdbc:postgresql://localhost:5432/customerportal
+    username: customerportal
+    password: mysecretisthebestsecret
+    driver-class-name: org.postgresql.Driver
   jpa:
+    hibernate:
+      ddl-auto: validate
     show-sql: true
     open-in-view: false
-    hibernate:
-      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
 
 springdoc:
   api-docs:
@@ -17,6 +21,26 @@ springdoc:
   swagger-ui:
     path: /swagger-ui-custom.html
     operationsSorter: method
+
+server:
+  error:
+    include-stacktrace: never
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+app:
+  jwt:
+    issuer: swiftparcel-customer-portal
+    secret: ${JWT_SECRET:dev-only-secret-change-me-min-32-bytes-0123456789}
+    access-token-ttl: PT15M
+    refresh-token-ttl: P7D
+  backoffice:
+    base-url: ${BACKOFFICE_BASE_URL:http://localhost:5000}
+    api-key: ${BACKOFFICE_API_KEY:dev-key}
+    timeout-ms: 5000
+
 
 external:
   api:

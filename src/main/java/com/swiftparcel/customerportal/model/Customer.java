@@ -3,9 +3,13 @@ package com.swiftparcel.customerportal.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.jspecify.annotations.Nullable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.UUID;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Builder
@@ -16,7 +20,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-public class Customer {
+public class Customer implements  UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +36,55 @@ public class Customer {
     private String phoneNumber;
 
     @Column(name = "password_hash", nullable = false, length = 60)
-    private String passwordHash;
+    private String password;
+
+    @Column(name = "preferred_language", length = 10)
+    private String preferredLanguage;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "default_address_id", referencedColumnName = "id")
+    private Address defaultAddress;
+
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
+    private NotificationPreference notificationPreference;
+
+
+    // Authentication Methods
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        //Added just as default role for every customer
+        return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+    }
+
+    @Override
+    public @Nullable String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return  true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 
 
 }

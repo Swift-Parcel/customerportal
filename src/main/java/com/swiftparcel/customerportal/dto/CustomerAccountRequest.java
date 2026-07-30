@@ -16,6 +16,6 @@ public class CustomerAccountRequest {
     String email;
     String fullName;
     String phoneNumber;
-    String passwordHash;
+    String password;
 
 }
