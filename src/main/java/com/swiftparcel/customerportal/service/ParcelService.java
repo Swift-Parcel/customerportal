@@ -7,7 +7,7 @@ import org.hibernate.annotations.processing.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
+import org.springframework.web.util.UriComponentsBuilder;
 
 
 @Service
@@ -25,8 +25,14 @@ public class ParcelService {
 
     public ParcelDetailResponse getParcelDetails(String trackingNumber) {
         validate(trackingNumber);
+
+        String url = UriComponentsBuilder.fromUriString(backendUrl)
+                .queryParam("trackingNumber", trackingNumber)
+                .toUriString();
+
+
         return restTemplate.getForObject(
-                backendUrl + "/api/parcels/" + trackingNumber,
+                url,
                 ParcelDetailResponse.class);
     }
 

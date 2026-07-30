@@ -9,6 +9,7 @@ import java.time.LocalTime;
 @Data
 @Builder
 public class ScheduleResponse {
+
     private String trackingNumber;
     private String status;
     private LocalDate estimatedDeliveryDate;

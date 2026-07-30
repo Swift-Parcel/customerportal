@@ -46,37 +46,6 @@ public class CustomerService {
     }
 
 
-//    @Transactional
-//    public CustomerAccountResponse createCustomer(CustomerAccountRequest request) {
-//        if (request == null) throw new BadRequestException("Request body required");
-//        if (customerRepository.existsByEmail(request.getEmail()))
-//            throw new EmailAlreadyExistsException(request.getEmail());
-//
-//        Customer customer = customerRepository.save(Customer.builder()
-//                .email(request.getEmail())
-//                .fullName(request.getFullName())
-//                .phoneNumber(request.getPhoneNumber())
-//                .passwordHash(passwordEncoder.encode(request.getRawPassword()))
-//                .backofficeSyncStatus(BackofficeSyncStatus.PENDING)
-//                .build());
-//
-//        return toResponse(customer);
-//    }
-//
-//
-//    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-//    public void onCustomerCreated(CustomerCreatedEvent event) {
-//        Customer c = customerRepository.findById(event.customerId()).orElseThrow();
-//        try {
-//            var resp = backofficeClient.createCustomer(
-//                    new BackofficeCustomerRequest(c.getEmail(), c.getFullName(), c.getPhoneNumber()));
-//            c.setBackofficeId(resp.backofficeId());
-//            c.setBackofficeSyncStatus(BackofficeSyncStatus.SYNCED);
-//        } catch (BackofficeSyncException e) {
-//            c.setBackofficeSyncStatus(BackofficeSyncStatus.FAILED);  // picked up by a retry job later
-//        }
-//        customerRepository.save(c);
-//    }
 
 
 }
