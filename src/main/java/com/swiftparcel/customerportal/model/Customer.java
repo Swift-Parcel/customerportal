@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Builder
@@ -45,6 +44,9 @@ public class Customer implements  UserDetails{
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "default_address_id", referencedColumnName = "id")
     private Address defaultAddress;
+
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
+    private NotificationPreference notificationPreference;
 
 
     // Authentication Methods
@@ -84,13 +86,5 @@ public class Customer implements  UserDetails{
         return true;
     }
 
-
-
-//    @Enumerated(EnumType.STRING)
-//    @Column(name = "backoffice_sync_status", nullable = false, length = 20)
-////    private BackofficeSyncStatus backofficeSyncStatus;   // PENDING, SYNCED, FAILED
-//
-//    @Column(name = "backoffice_id")
-//    private String backofficeId;
 
 }
