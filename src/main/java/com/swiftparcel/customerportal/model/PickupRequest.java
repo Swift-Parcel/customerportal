@@ -44,13 +44,13 @@ public class PickupRequest {
     float parcelWeight;
 
     @Column(name = "width_cm", nullable = false)
-    float parcelWidth;
+    int parcelWidth;
 
     @Column(name = "length_cm", nullable = false)
-    float parcelLength;
+    int parcelLength;
 
     @Column(name = "height_cm", nullable = false)
-    float parcelHeight;
+    int parcelHeight;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "service_type", nullable = false, length = 16)
