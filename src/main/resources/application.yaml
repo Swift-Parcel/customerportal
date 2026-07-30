@@ -2,7 +2,7 @@ spring:
   application:
     name: customerportal
   datasource:
-    url: jdbc:postgresql://localhost:32775/customerportal
+    url: jdbc:postgresql://localhost:5432/customerportal
     username: customerportal
     password: mysecretisthebestsecret
     driver-class-name: org.postgresql.Driver
@@ -14,7 +14,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
 
 springdoc:
   api-docs:
@@ -42,3 +41,7 @@ app:
     api-key: ${BACKOFFICE_API_KEY:dev-key}
     timeout-ms: 5000
 
+
+external:
+  api:
+    backoffice-url: ${BACKOFFICE_API_URL:https://api-integration.free.beeceptor.com/api/integration/parcel}
