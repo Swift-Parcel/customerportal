@@ -15,12 +15,12 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @PostMapping
-    public CustomerAccountResponse createCustomer(@RequestBody CustomerAccountRequest userRequest){
+    public CustomerAccountResponse createCustomer(@RequestBody CustomerAccountRequest userRequest) {
         return customerService.createCustomer(userRequest);
     }
 
     @DeleteMapping
-    public void deleteCustomer(@RequestBody String email){
+    public void deleteCustomer(@RequestBody String email) {
         customerService.deleteCustomer(email);
     }
 

@@ -32,7 +32,10 @@ public class ParcelDetailResponse {
 class TrackingEvent {
 
     private LocalDateTime timeStamp;
-    private enum parcel_status {};
+
+    private enum parcel_status {}
+
+    ;
     private String description;
 }
 
@@ -58,4 +61,3 @@ class Party {
     private String fullName;
     private String email;
 }
-

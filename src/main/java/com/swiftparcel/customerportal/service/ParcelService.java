@@ -1,12 +1,14 @@
 package com.swiftparcel.customerportal.service;
 
+import com.swiftparcel.customerportal.dto.ConfirmDeliveryResponse;
 import com.swiftparcel.customerportal.dto.ParcelDetailResponse;
 import com.swiftparcel.customerportal.dto.ScheduleResponse;
-import org.hibernate.annotations.processing.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Map;
 
 
 @Service
@@ -53,4 +55,20 @@ public class ParcelService {
             throw new IllegalArgumentException("Invalid tracking number format: " + trackingNumber);
         }
     }
+
+    public ConfirmDeliveryResponse confirmDelivery(String trackingNumber, String customerEmail) {
+        validate(trackingNumber);
+
+        String url = UriComponentsBuilder.fromUriString(backendUrl)
+                .path("/api/integration/parcels/{trackingNumber}/confirm-delivery")
+                .buildAndExpand(trackingNumber)
+                .toUriString();
+
+        Map<String, String> body = Map.of("customer_email", customerEmail);
+
+        restTemplate.patchForObject(url, body, String.class);
+
+        return new ConfirmDeliveryResponse("Delivery confirmation received");
+    }
+
 }
