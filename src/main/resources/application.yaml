@@ -44,4 +44,4 @@ app:
 
 external:
   api:
-    backoffice-url: ${BACKOFFICE_API_URL:https://api-integration.free.beeceptor.com/api/integration/parcel}
+    backoffice-url: ${BACKOFFICE_API_URL:https://parcel-api.free.beeceptor.com/api/integration/parcel}

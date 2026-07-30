@@ -22,7 +22,7 @@ public class CustomerService {
 
 
     public CustomerAccountResponse createCustomer(CustomerAccountRequest customerAccountRequest) {
-        if(customerAccountRequest == null){
+        if (customerAccountRequest == null) {
             return null;
         }
 
@@ -30,7 +30,7 @@ public class CustomerService {
                 .email(customerAccountRequest.getEmail())
                 .fullName(customerAccountRequest.getFullName())
                 .phoneNumber(customerAccountRequest.getPhoneNumber())
-                .password(bCryptPasswordEncoder.encode(customerAccountRequest.getPassword()))
+                .passwordHash(bCryptPasswordEncoder.encode(customerAccountRequest.getPassword()))
                 .build();
 
         // Initialize default notification preferences
@@ -59,9 +59,8 @@ public class CustomerService {
         return customerRepository.findById(id).map(this::mapToDTO);
     }
 
-    public void deleteCustomer(Long customerId) {
-        customerRepository.findById(customerId).orElseThrow(() -> new RuntimeException());
-        customerRepository.deleteById(customerId);
+    public void deleteCustomer(String email) {
+        customerRepository.deleteByEmail(email);
 
     }
 

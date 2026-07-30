@@ -1,7 +1,12 @@
 package com.swiftparcel.customerportal.controller;
 
+import com.swiftparcel.customerportal.dto.ConfirmDeliveryResponse;
+import com.swiftparcel.customerportal.dto.ParcelDetailResponse;
+import com.swiftparcel.customerportal.dto.ScheduleResponse;
 import com.swiftparcel.customerportal.dto.ParcelDTO;
 import com.swiftparcel.customerportal.service.ParcelService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,12 +16,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/customerportal/parcel")
+@RequiredArgsConstructor
 public class ParcelController {
     private final ParcelService parcelService;
-
-    public ParcelController(ParcelService parcelService) {
-        this.parcelService = parcelService;
-    }
 
     @GetMapping
     public List<ParcelDTO> getParcels(
@@ -25,4 +27,26 @@ public class ParcelController {
             @RequestParam(required = false) Integer limit) {
         return parcelService.getCustomerParcels(customerEmail, skip, limit);
     }
+
+    @GetMapping("/{trackingNumber}")
+    public ParcelDetailResponse getParcel(@PathVariable String trackingNumber) {
+        return parcelService.getParcelDetails(trackingNumber);
+    }
+
+    @GetMapping("/{trackingNumber}/schedule")
+    public ScheduleResponse getSchedule(@PathVariable String trackingNumber) {
+        return parcelService.getSchedule(trackingNumber);
+    }
+
+
+    @PatchMapping("/{trackingNumber}/confirm-delivery")
+    public ConfirmDeliveryResponse confirmDelivery(
+            @PathVariable String trackingNumber,
+            @RequestBody ConfirmDeliveryRequest request) {
+        return parcelService.confirmDelivery(trackingNumber, request.customerEmail());
+    }
+
+
+    public record ConfirmDeliveryRequest(String customerEmail) {}
+
 }
