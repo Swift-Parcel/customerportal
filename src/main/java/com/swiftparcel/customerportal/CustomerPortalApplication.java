@@ -14,8 +14,4 @@ public class CustomerPortalApplication {
 		SpringApplication.run(CustomerPortalApplication.class, args);
 	}
 
-//	@Bean
-//	public RestTemplate restTemplate() {
-//		return new RestTemplate();
-//	}
 }
