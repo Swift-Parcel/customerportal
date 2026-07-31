@@ -1,10 +1,8 @@
 package com.swiftparcel.customerportal.model;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.swiftparcel.customerportal.model.enums.ServiceType;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -22,8 +20,9 @@ public class ServiceRate {
     @Id
     Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "service_type")
-    String serviceType;
+    ServiceType serviceType;
 
     @Column(name =  "base_price")
     BigDecimal basePrice;
@@ -41,7 +40,7 @@ public class ServiceRate {
     LocalTime orderCutOffTime;
 
     @Column(name = "min_time_before_slot_minutes")
-    int minTimeBeforeSlotMinutes;
+    Integer minTimeBeforeSlotMinutes;
 
     @Column(name = "cross_country_allowed")
     boolean crossCountryAllowed;
