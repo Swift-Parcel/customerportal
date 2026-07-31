@@ -34,7 +34,16 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authRequest ->
                          authRequest
-                                 .requestMatchers("/api/customerportal/auth/login", "/api/customerportal/auth/refresh", "/api/customerportal/error", "/api/customerportal/customer/createCustomer").permitAll()
+                                 .requestMatchers(
+                                         "/swagger-ui/",
+                                         "/swagger-ui.html",
+                                         "/api-docs/",
+                                         "/swagger-ui/index.html#",
+                                         "/api/customerportal/auth/login",
+                                         "/api/customerportal/auth/refresh",
+                                         "/api/customerportal/error",
+                                         "/api/customerportal/customer/createCustomer")
+                                 .permitAll()
                                  .anyRequest().authenticated())
                 .sessionManagement(sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -45,28 +54,6 @@ public class SecurityConfig {
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder();
     }
-
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/customerportal/customer").permitAll()
-                        .requestMatchers("/api/customerportal/customer/*").permitAll()
-                        .requestMatchers("/api/customerportal/parcels/**").permitAll()
-                        .anyRequest().authenticated()
-                );
-
-        return http.build();
-    }
-
-
-
-//    @Bean
-//    public RestTemplate restTemplate() {
-//        return new RestTemplate();
-//    }
 
     @Bean
     public RestTemplate restTemplate() {
