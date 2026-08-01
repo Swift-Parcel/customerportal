@@ -7,9 +7,9 @@ import com.swiftparcel.customerportal.model.Customer;
 import com.swiftparcel.customerportal.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -31,7 +31,7 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         Customer customer = customerRepository.getCustomerFromDb(request.getEmail().toLowerCase())
-                .orElseThrow(() -> new UsernameNotFoundException("Customer not found"));
+                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
         return build(customer, refreshTokenService.issue(customer));
     }

@@ -51,7 +51,10 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails user){
         try{
-            return decoder.decode(token).getSubject().equals(user.getUsername());
+            Jwt decodedToken = decoder.decode(token);
+            return decodedToken.getSubject().equals(user.getUsername()) &&
+                    decodedToken.getExpiresAt() != null &&
+                    decodedToken.getExpiresAt().isAfter(Instant.now());
         }catch (JwtException e){
             return false;
         }
