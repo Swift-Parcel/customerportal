@@ -2,12 +2,14 @@ package com.swiftparcel.customerportal.controller;
 
 import com.swiftparcel.customerportal.model.NotificationPreference;
 import com.swiftparcel.customerportal.service.NotificationService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/customerportal/customer")
+@SecurityRequirement(name = "bearerAuth")
 public class NotificationController {
 
     private final NotificationService notificationService;

@@ -5,6 +5,7 @@ import com.swiftparcel.customerportal.dto.PricingRequestDTO;
 import com.swiftparcel.customerportal.model.Address;
 import com.swiftparcel.customerportal.model.enums.ServiceType;
 import com.swiftparcel.customerportal.service.PricingService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
