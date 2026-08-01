@@ -42,7 +42,7 @@ public class SecurityConfig {
                                          "/api/customerportal/auth/login",
                                          "/api/customerportal/auth/refresh",
                                          "/api/customerportal/error",
-                                         "/api/customerportal/customer/createCustomer")
+                                         "/api/customerportal/customer")
                                  .permitAll()
                                  .anyRequest().authenticated())
                 .sessionManagement(sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
