@@ -10,3 +10,4 @@ CREATE TABLE quote (
                        quoted_at           TIMESTAMPTZ   NOT NULL DEFAULT now(),
                        quote_expires_at    TIMESTAMPTZ   NOT NULL
 );
+--
