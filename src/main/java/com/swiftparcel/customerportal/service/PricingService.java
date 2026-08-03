@@ -26,32 +26,42 @@ public class PricingService {
     private final RegionRepository regionRepository;
 
 
-    public PricingDTO calculateQuote(ServiceType serviceType, float weight, Address senderAddress, Address recipientAddress){
-        ServiceRate serviceRate = serviceRateRepository.findByServiceType(serviceType)
+    public PricingDTO calculateQuote(ServiceType serviceType, BigDecimal weight,
+                                     Address senderAddress, Address recipientAddress) {
+
+        ServiceRate rate = serviceRateRepository.findByServiceType(serviceType)
                 .orElseThrow(() -> new IllegalStateException("Missing rate configuration for: " + serviceType));
-        Route routeType = getZoneRoute(senderAddress, recipientAddress);
-        BigDecimal basePrice = serviceRate.getBasePrice();
-        BigDecimal weightCharge = serviceRate.getPerKgRate()
-                .multiply(BigDecimal.valueOf(weight))
-                .setScale(2, RoundingMode.HALF_UP);
-        BigDecimal surcharge = BigDecimal.ZERO.setScale(2);
-        BigDecimal threshold = serviceRate.getSurchargeWeightThresholdKg();
-        if (threshold != null && BigDecimal.valueOf(weight).compareTo(threshold) > 0) {
-            surcharge = serviceRate.getSurchargeAmount();
+
+        Route route = getZoneRoute(senderAddress, recipientAddress);
+
+        BigDecimal basePrice     = rate.getBasePrice();
+        BigDecimal weightCharge  = rate.getPerKgRate().multiply(weight);
+        BigDecimal surcharge     = BigDecimal.ZERO;
+
+        BigDecimal threshold = rate.getSurchargeWeightThresholdKg();
+        if (threshold != null && weight.compareTo(threshold) > 0) {
+            surcharge = rate.getSurchargeAmount();
         }
 
         BigDecimal subtotal = basePrice.add(weightCharge).add(surcharge);
 
-        BigDecimal totalPrice = subtotal
-                .multiply(routeType.getMultiplier())
+        BigDecimal totalPrice = subtotal.multiply(route.getMultiplier())
                 .setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal zoneAdjusment = totalPrice.subtract(subtotal);
-        return  PricingDTO.builder()
-                .basePrice(basePrice)
-                .weightCharge(weightCharge)
-                .surcharge(surcharge)
-                .zoneAdjustment(zoneAdjusment)
+        BigDecimal displayBase      = basePrice.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal displayWeight    = weightCharge.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal displaySurcharge = surcharge.setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal zoneAdjustment = totalPrice
+                .subtract(displayBase)
+                .subtract(displayWeight)
+                .subtract(displaySurcharge);
+
+        return PricingDTO.builder()
+                .basePrice(displayBase)
+                .weightCharge(displayWeight)
+                .surcharge(displaySurcharge)
+                .zoneAdjustment(zoneAdjustment)
                 .totalPrice(totalPrice)
                 .build();
     }
