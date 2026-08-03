@@ -2,11 +2,8 @@ package com.swiftparcel.customerportal.controller;
 
 import com.swiftparcel.customerportal.dto.PricingDTO;
 import com.swiftparcel.customerportal.dto.PricingRequestDTO;
-import com.swiftparcel.customerportal.model.Address;
-import com.swiftparcel.customerportal.model.enums.ServiceType;
 import com.swiftparcel.customerportal.service.PricingService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

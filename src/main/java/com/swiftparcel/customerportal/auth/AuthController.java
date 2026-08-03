@@ -2,6 +2,7 @@ package com.swiftparcel.customerportal.auth;
 
 import com.swiftparcel.customerportal.auth.dto.LoginRequest;
 import com.swiftparcel.customerportal.auth.dto.RefreshRequest;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> logout(@RequestBody RefreshRequest request) {
         authService.logout(request.refreshToken());
         return ResponseEntity.noContent().build();
