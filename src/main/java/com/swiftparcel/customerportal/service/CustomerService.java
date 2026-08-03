@@ -102,9 +102,6 @@ public class CustomerService {
         if (customerDto == null || customer == null) {
             return;
         }
-        if (customerDto.getEmail() != null) {
-            customer.setEmail(customerDto.getEmail());
-        }
         if (customerDto.getFullName() != null) {
             customer.setFullName(customerDto.getFullName());
         }
