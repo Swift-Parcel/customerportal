@@ -1,5 +1,6 @@
 package com.swiftparcel.customerportal.controller;
 
+import com.swiftparcel.customerportal.dto.ApiResponse;
 import com.swiftparcel.customerportal.model.NotificationPreference;
 import com.swiftparcel.customerportal.service.NotificationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -19,9 +20,9 @@ public class NotificationController {
     }
 
     @PatchMapping("/{customerId}/notification-preference")
-    public ResponseEntity<String> updatingNotificationPreference(@PathVariable Long customerId, @Valid @RequestBody NotificationPreference updateRequest) {
+    public ResponseEntity<ApiResponse> updatingNotificationPreference(@PathVariable Long customerId, @Valid @RequestBody NotificationPreference updateRequest) {
         return notificationService.updateNotificationPreference(customerId, updateRequest)
-                .map( _ -> ResponseEntity.ok("Notification preference updated successfully"))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .map( _ -> ResponseEntity.ok(new ApiResponse("Notification preference updated successfully")))
+                .orElseGet(() -> ResponseEntity.status(404).body(new ApiResponse("Customer not found")));
     }
 }
