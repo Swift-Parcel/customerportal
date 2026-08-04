@@ -5,6 +5,7 @@ import com.swiftparcel.customerportal.model.NotificationPreference;
 import com.swiftparcel.customerportal.service.NotificationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +24,6 @@ public class NotificationController {
     public ResponseEntity<ApiResponse> updatingNotificationPreference(@PathVariable Long customerId, @Valid @RequestBody NotificationPreference updateRequest) {
         return notificationService.updateNotificationPreference(customerId, updateRequest)
                 .map( _ -> ResponseEntity.ok(new ApiResponse("Notification preference updated successfully")))
-                .orElseGet(() -> ResponseEntity.status(404).body(new ApiResponse("Customer not found")));
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Customer not found")));
     }
 }
