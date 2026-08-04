@@ -1,5 +1,6 @@
 package com.swiftparcel.customerportal.controller;
 
+import com.swiftparcel.customerportal.dto.ApiResponse;
 import com.swiftparcel.customerportal.dto.PickupRequestDTO;
 import com.swiftparcel.customerportal.service.PickupRequestService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -20,11 +21,11 @@ public class PickupRequestController {
     }
 
     @PostMapping("/{customerId}/pickup-requests")
-    public ResponseEntity<String> createPickupRequest(@PathVariable Long customerId, @Valid @RequestBody PickupRequestDTO pickupRequestDto) {
+    public ResponseEntity<ApiResponse> createPickupRequest(@PathVariable Long customerId, @Valid @RequestBody PickupRequestDTO pickupRequestDto) {
         String result = pickupRequestService.createPickupRequest(pickupRequestDto, customerId);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(result);
+                .body(new ApiResponse(result));
     }
 }
