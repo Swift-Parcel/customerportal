@@ -4,5 +4,5 @@ CREATE TABLE notifications (
     event_type VARCHAR(50) NOT NULL,
     status VARCHAR(50) NOT NULL,
     message TEXT,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
