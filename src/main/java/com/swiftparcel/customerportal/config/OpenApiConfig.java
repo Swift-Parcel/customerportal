@@ -14,5 +14,11 @@ import org.springframework.context.annotation.Configuration;
         bearerFormat = "JWT",
         scheme = "bearer"
 )
+@SecurityScheme(
+        name = "apiKey",
+        type = SecuritySchemeType.APIKEY,
+        in = io.swagger.v3.oas.annotations.enums.SecuritySchemeIn.HEADER,
+        paramName = "x-api-key"
+)
 public class OpenApiConfig {
 }
