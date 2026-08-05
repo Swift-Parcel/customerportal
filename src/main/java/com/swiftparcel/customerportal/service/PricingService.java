@@ -2,10 +2,14 @@ package com.swiftparcel.customerportal.service;
 
 import com.swiftparcel.customerportal.dto.PricingDTO;
 import com.swiftparcel.customerportal.model.Address;
+import com.swiftparcel.customerportal.model.PickupRequest;
 import com.swiftparcel.customerportal.model.Quote;
 import com.swiftparcel.customerportal.model.Route;
 import com.swiftparcel.customerportal.model.ServiceRate;
+import com.swiftparcel.customerportal.model.enums.CurrentStatus;
 import com.swiftparcel.customerportal.model.enums.ServiceType;
+import com.swiftparcel.customerportal.repository.AddressRepository;
+import com.swiftparcel.customerportal.repository.PickupRequestRepository;
 import com.swiftparcel.customerportal.repository.QuotesRepository;
 import com.swiftparcel.customerportal.repository.RouteRepository;
 import com.swiftparcel.customerportal.repository.ServiceRateRepository;
@@ -27,7 +31,37 @@ public class PricingService {
     private final RouteRepository routeRepository;
     private final ServiceRateRepository serviceRateRepository;
     private final QuotesRepository quotesRepository;
+    private final PickupRequestRepository pickupRequestRepository;
+    private final AddressRepository addressRepository;
 
+    @Transactional
+    public Quote createQuoteForPickupRequest(Long pickupRequestId) {
+        PickupRequest pickupRequest = pickupRequestRepository.findById(pickupRequestId)
+                .orElseThrow(() -> new IllegalStateException("Pickup request not found: " + pickupRequestId));
+
+        Address senderAddress = addressRepository.findById(pickupRequest.getSenderAddress())
+                .orElseThrow(() -> new IllegalStateException(
+                        "Sender address not found: " + pickupRequest.getSenderAddress()));
+
+        Address recipientAddress = addressRepository.findById(pickupRequest.getRecipientAddress())
+                .orElseThrow(() -> new IllegalStateException(
+                        "Recipient address not found: " + pickupRequest.getRecipientAddress()));
+
+        BigDecimal weight = new BigDecimal(Float.toString(pickupRequest.getParcelWeight()));
+
+        PricingDTO pricing = calculateQuote(
+                pickupRequest.getServiceType(), weight, senderAddress, recipientAddress);
+
+        Route route = getZoneRoute(senderAddress, recipientAddress);
+
+        Quote quote = saveQuote(pricing, pickupRequestId, route.getRouteType());
+
+        pickupRequest.setQuotedPrice(pricing.getTotalPrice().floatValue());
+        pickupRequest.setCurrentStatus(CurrentStatus.QUOTED);
+        pickupRequestRepository.save(pickupRequest);
+
+        return quote;
+    }
 
     public PricingDTO calculateQuote(ServiceType serviceType, BigDecimal weight,
                                      Address senderAddress, Address recipientAddress) {
