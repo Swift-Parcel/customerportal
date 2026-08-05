@@ -27,17 +27,21 @@ public class PickupRequestService {
 
     public String createPickupRequest(PickupRequestDTO pickupRequestDTO, Long customerId) {
         if(pickupRequestDTO == null){
-            return null;
+            throw new IllegalArgumentException("Request body is missing");
         }
 
         Optional<Customer> customerOpt = customerRepository.findById(customerId);
         if (customerOpt.isEmpty()) {
-            return "Customer not found";
+            throw new java.util.NoSuchElementException("Customer not found");
         }
         Customer customer = customerOpt.get();
 
         if (!customerLimit(customerId)) {
-            return "Customer cannot have more than 5 unconfirmed pickup requests";
+            throw new IllegalStateException("Customer cannot have more than 5 unconfirmed pickup requests");
+        }
+
+        if (pickupRequestDTO.getPreferredPickupDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("invalid date in the past");
         }
 
         Long senderAddressId = pickupRequestDTO.getSenderAddress();
@@ -45,17 +49,15 @@ public class PickupRequestService {
         Optional<Address> senderAddressOpt = addressRepository.findById(senderAddressId);
         Optional<Address> recipientAddressOpt = addressRepository.findById(pickupRequestDTO.getRecipientAddress());
 
-        if (senderAddressOpt.isEmpty()) return "Sender address not found";
-        if (recipientAddressOpt.isEmpty()) return "Recipient address not found";
+        if (senderAddressOpt.isEmpty()) throw new IllegalArgumentException("Sender address not found");
+        if (recipientAddressOpt.isEmpty()) throw new IllegalArgumentException("Recipient address not found");
 
         Address senderAddress = senderAddressOpt.get();
         Address recipientAddress = recipientAddressOpt.get();
 
-        String sameDayError = validateSameDayRules(pickupRequestDTO, senderAddress, recipientAddress);
-        if (sameDayError != null) return sameDayError;
+        validateSameDayRules(pickupRequestDTO, senderAddress, recipientAddress);
 
-        String expressError = validateExpressLeadTime(pickupRequestDTO);
-        if (expressError != null) return expressError;
+        validateExpressLeadTime(pickupRequestDTO);
 
         PickupRequest pickupRequest = PickupRequest.builder()
                 .preferredPickupDate(pickupRequestDTO.getPreferredPickupDate())
@@ -86,22 +88,21 @@ public class PickupRequestService {
         return count < 5;
     }
 
-    private String validateSameDayRules(PickupRequestDTO pickupRequestDTO, Address sender, Address recipient) {
+    private void validateSameDayRules(PickupRequestDTO pickupRequestDTO, Address sender, Address recipient) {
         if (pickupRequestDTO.getServiceType() == ServiceType.SAME_DAY) {
             if (!sender.getCountryCode().equals(recipient.getCountryCode())) {
-                return "Same-Day service is not available for cross-country routes";
+                throw new IllegalArgumentException("Same-Day service is not available for cross-country routes");
             }
             
             if (pickupRequestDTO.getPreferredPickupDate().equals(LocalDate.now())) {
                 if (LocalTime.now().isAfter(LocalTime.of(10, 0))) {
-                    return "Same-Day service must be requested before 10:00 AM on the same day";
+                    throw new IllegalArgumentException("Same-Day service must be requested before 10:00 AM on the same day");
                 }
             }
         }
-        return null;
     }
 
-    private String validateExpressLeadTime(PickupRequestDTO pickupRequestDTO) {
+    private void validateExpressLeadTime(PickupRequestDTO pickupRequestDTO) {
         if (pickupRequestDTO.getServiceType() == ServiceType.EXPRESS) {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime slotStart = LocalDateTime.of(
@@ -110,9 +111,8 @@ public class PickupRequestService {
             );
             
             if (now.isAfter(slotStart.minusHours(2))) {
-                return "Express service must be requested at least 2 hours before the time slot starts";
+                throw new IllegalArgumentException("Express service must be requested at least 2 hours before the time slot starts");
             }
         }
-        return null;
     }
 }

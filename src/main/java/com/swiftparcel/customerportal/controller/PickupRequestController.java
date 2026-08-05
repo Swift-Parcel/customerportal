@@ -22,10 +22,10 @@ public class PickupRequestController {
 
     @PostMapping("/{customerId}/pickup-requests")
     public ResponseEntity<ApiResponse> createPickupRequest(@PathVariable Long customerId, @Valid @RequestBody PickupRequestDTO pickupRequestDto) {
-        String result = pickupRequestService.createPickupRequest(pickupRequestDto, customerId);
+        pickupRequestService.createPickupRequest(pickupRequestDto, customerId);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ApiResponse(result));
+                .body(new ApiResponse("Pickup Request created"));
     }
 }
