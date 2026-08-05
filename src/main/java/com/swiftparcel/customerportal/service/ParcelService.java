@@ -1,10 +1,6 @@
 package com.swiftparcel.customerportal.service;
 
-import com.swiftparcel.customerportal.dto.ConfirmDeliveryResponse;
-import com.swiftparcel.customerportal.dto.ParcelDetailResponse;
-import com.swiftparcel.customerportal.dto.ScheduleResponse;
-import com.swiftparcel.customerportal.dto.ParcelDTO;
-import com.swiftparcel.customerportal.dto.ParcelResponseDTO;
+import com.swiftparcel.customerportal.dto.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -93,6 +89,17 @@ public class ParcelService {
         restTemplate.patchForObject(url, body, String.class);
 
         return new ConfirmDeliveryResponse("Delivery confirmation received");
+    }
+
+    public ApiResponse changeDelivery(String trackingNumber, ChangeDeliveryDTO changeDeliveryDTO) {
+        validate(trackingNumber);
+
+        String url = UriComponentsBuilder.fromUriString(backendUrl)
+                .path("/api/integration/parcels/{trackingNumber}/delivery-change")
+                .buildAndExpand(trackingNumber)
+                .toUriString();
+
+        return restTemplate.patchForObject(url, changeDeliveryDTO, ApiResponse.class);
     }
 
 }
