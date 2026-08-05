@@ -2,18 +2,21 @@ package com.swiftparcel.customerportal.service;
 
 import com.swiftparcel.customerportal.dto.PricingDTO;
 import com.swiftparcel.customerportal.model.Address;
+import com.swiftparcel.customerportal.model.Quote;
 import com.swiftparcel.customerportal.model.Route;
 import com.swiftparcel.customerportal.model.ServiceRate;
 import com.swiftparcel.customerportal.model.enums.ServiceType;
-import com.swiftparcel.customerportal.repository.RegionRepository;
+import com.swiftparcel.customerportal.repository.QuotesRepository;
 import com.swiftparcel.customerportal.repository.RouteRepository;
 import com.swiftparcel.customerportal.repository.ServiceRateRepository;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,7 +26,7 @@ public class PricingService {
 
     private final RouteRepository routeRepository;
     private final ServiceRateRepository serviceRateRepository;
-    private final RegionRepository regionRepository;
+    private final QuotesRepository quotesRepository;
 
 
     public PricingDTO calculateQuote(ServiceType serviceType, BigDecimal weight,
@@ -66,28 +69,43 @@ public class PricingService {
                 .build();
     }
 
-    public Route getZoneRoute(Address address1, Address address2){
+    public Route getZoneRoute(Address address1, Address address2) {
         List<Route> routes = routeRepository.findAll();
 
-        if(!Objects.equals(address1.getCountryCode(), address2.getCountryCode())){
-            return routes.stream()
-                    .filter(r -> r.getRouteType().equals("CROSS_COUNTRY"))
-                    .findAny()
-                    .orElse(null);
+        if (!Objects.equals(address1.getCountryCode(), address2.getCountryCode())) {
+            return getRouteOrThrow(routes, "CROSS_COUNTRY");
         }
 
-        if(address1.getCity().equals(address2.getCity())){
-            return routes.stream()
-                    .filter(r -> r.getRouteType().equals("SAME_CITY"))
-                    .findAny()
-                    .orElse(null);
-
-        }else{
-            return routes.stream()
-                    .filter(r -> r.getRouteType().equals("SAME_COUNTRY"))
-                    .findAny()
-                    .orElse(null);
+        if (address1.getCity().equals(address2.getCity())) {
+            return getRouteOrThrow(routes, "SAME_CITY");
+        } else {
+            return getRouteOrThrow(routes, "SAME_COUNTRY");
         }
     }
 
+    private Route getRouteOrThrow(List<Route> routes, String routeType) {
+        return routes.stream()
+                .filter(r -> r.getRouteType().equals(routeType))
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException("Missing route configuration for: " + routeType));
+    }
+
+    @Transactional
+    public Quote saveQuote(PricingDTO pricingDTO, Long pickupRequestId, String routeType) {
+        Instant now = Instant.now();
+
+        Quote quote = Quote.builder()
+                .pickupRequestId(pickupRequestId)
+                .basePrice(pricingDTO.getBasePrice())
+                .weightCharge(pricingDTO.getWeightCharge())
+                .surcharge(pricingDTO.getSurcharge())
+                .zoneAdjustment(pricingDTO.getZoneAdjustment())
+                .totalPrice(pricingDTO.getTotalPrice())
+                .quoteRouteType(routeType)
+                .quotedAt(now)
+                .quoteExpiresAt(now.plus(24, ChronoUnit.HOURS))
+                .build();
+
+        return quotesRepository.save(quote);
+    }
 }
