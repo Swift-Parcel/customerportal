@@ -2,6 +2,7 @@ package com.swiftparcel.customerportal.dto;
 
 import com.swiftparcel.customerportal.model.enums.ServiceType;
 import com.swiftparcel.customerportal.model.enums.TimeSlot;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PickupRequestDTO {
     @NotNull(message = "Preferred pickup date is required")
+    @Future
     private LocalDate preferredPickupDate;
     @Max(value = 5000, message = "Declared value cannot exceed €5,000.")
     private float declaredValue;
