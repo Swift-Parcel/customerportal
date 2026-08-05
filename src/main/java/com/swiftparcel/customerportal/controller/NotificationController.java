@@ -41,7 +41,7 @@ public class NotificationController {
                     + " was "
                     + deliveryChangeWebhookDTO.getOutcome();
 
-            notificationService.processNotification(deliveryChangeWebhookDTO.getCustomerId(), NotificationEventType.DELIVERY_CHANGE, message);
+            notificationService.processNotification(deliveryChangeWebhookDTO.getCustomerEmail(), NotificationEventType.DELIVERY_CHANGE, message);
 
             return ResponseEntity.ok(new ApiResponse("Webhook received successfully"));
         }

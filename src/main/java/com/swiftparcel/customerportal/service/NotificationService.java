@@ -18,19 +18,23 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationHistoryRepository notificationHistoryRepository;
 
-    public void processNotification(Long customerId, NotificationEventType eventType, String message) {
-        notificationRepository.findByCustomer_Id(customerId).ifPresent(preference -> {
-            if (isEventEnabled(preference, eventType)) {
-                Notification notification = Notification.builder()
-                        .customer(preference.getCustomer())
-                        .eventType(eventType)
-                        .status(NotificationStatus.SENT)
-                        .message(message)
-                        .createdAt(LocalDateTime.now())
-                        .build();
-                notificationHistoryRepository.save(notification);
-            }
+    public void processNotification(String email, NotificationEventType eventType, String message) {
+        notificationRepository.findByCustomer_Email(email).ifPresent(preference -> {
+            sendNotificationIfEnabled(preference, eventType, message);
         });
+    }
+
+    private void sendNotificationIfEnabled(NotificationPreference preference, NotificationEventType eventType, String message) {
+        if (isEventEnabled(preference, eventType)) {
+            Notification notification = Notification.builder()
+                    .customer(preference.getCustomer())
+                    .eventType(eventType)
+                    .status(NotificationStatus.SENT)
+                    .message(message)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            notificationHistoryRepository.save(notification);
+        }
     }
 
     private boolean isEventEnabled(NotificationPreference preference, NotificationEventType eventType) {

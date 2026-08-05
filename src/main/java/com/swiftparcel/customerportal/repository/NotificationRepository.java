@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository<NotificationPreference, Long> {
     Optional<NotificationPreference> findByCustomer_Id(Long customerId);
+    Optional<NotificationPreference> findByCustomer_Email(String email);
 }
