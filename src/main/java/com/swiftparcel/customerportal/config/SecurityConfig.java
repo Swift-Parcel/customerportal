@@ -1,6 +1,7 @@
 package com.swiftparcel.customerportal.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swiftparcel.customerportal.auth.ApiKeyAuthenticationFilter;
 import com.swiftparcel.customerportal.auth.jwt.JwtAuthenticationFilter;
 import com.swiftparcel.customerportal.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import org.springframework.web.client.RestTemplate;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final ApiKeyAuthenticationFilter apiKeyAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -50,6 +52,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler()))
                 .sessionManagement(sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
