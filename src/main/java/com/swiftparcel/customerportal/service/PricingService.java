@@ -34,6 +34,11 @@ public class PricingService {
     private final PickupRequestRepository pickupRequestRepository;
     private final AddressRepository addressRepository;
 
+    public List<Quote> getQuoteHistory(Long customerId) {
+        Instant since = Instant.now().minus(30, ChronoUnit.DAYS);
+        return quotesRepository.findQuoteHistory(customerId, since);
+    }
+
     @Transactional
     public Quote createQuoteForPickupRequest(Long pickupRequestId) {
         PickupRequest pickupRequest = pickupRequestRepository.findById(pickupRequestId)
