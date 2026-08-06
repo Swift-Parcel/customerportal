@@ -34,7 +34,6 @@ public class PickupRequestService {
         if (customerOpt.isEmpty()) {
             throw new java.util.NoSuchElementException("Customer not found");
         }
-        Customer customer = customerOpt.get();
 
         if (!customerLimit(customerId)) {
             throw new IllegalStateException("Customer cannot have more than 5 unconfirmed pickup requests");
@@ -44,16 +43,8 @@ public class PickupRequestService {
             throw new IllegalArgumentException("invalid date in the past");
         }
 
-        Long senderAddressId = pickupRequestDTO.getSenderAddress();
-
-        Optional<Address> senderAddressOpt = addressRepository.findById(senderAddressId);
-        Optional<Address> recipientAddressOpt = addressRepository.findById(pickupRequestDTO.getRecipientAddress());
-
-        if (senderAddressOpt.isEmpty()) throw new IllegalArgumentException("Sender address not found");
-        if (recipientAddressOpt.isEmpty()) throw new IllegalArgumentException("Recipient address not found");
-
-        Address senderAddress = senderAddressOpt.get();
-        Address recipientAddress = recipientAddressOpt.get();
+        Address senderAddress = findOrCreateAddress(pickupRequestDTO.getSenderAddress());
+        Address recipientAddress = findOrCreateAddress(pickupRequestDTO.getRecipientAddress());
 
         validateSameDayRules(pickupRequestDTO, senderAddress, recipientAddress);
 
@@ -67,10 +58,10 @@ public class PickupRequestService {
                 .parcelWeight(pickupRequestDTO.getParcelWeight())
                 .parcelWidth(pickupRequestDTO.getParcelWidth())
                 .preferredTimeSlot(pickupRequestDTO.getPreferredTimeSlot())
-                .recipientAddress(pickupRequestDTO.getRecipientAddress())
+                .recipientAddress(recipientAddress.getId())
                 .recipientName(pickupRequestDTO.getRecipientName())
                 .customerId(customerId)
-                .senderAddress(senderAddressId)
+                .senderAddress(senderAddress.getId())
                 .serviceType(pickupRequestDTO.getServiceType())
                 .currentStatus(CurrentStatus.DRAFT)
                 .build();
@@ -78,6 +69,24 @@ public class PickupRequestService {
         pickupRequestRepository.save(pickupRequest);
 
         return("Pickup Request created");
+    }
+
+    private Address findOrCreateAddress(com.swiftparcel.customerportal.dto.AddressDTO addressDTO) {
+        if (addressDTO == null) {
+            throw new IllegalArgumentException("Address information is missing");
+        }
+        return addressRepository.findByCityAndPostalCodeAndCountryCode(
+                addressDTO.getCity(),
+                addressDTO.getPostalCode(),
+                addressDTO.getCountryCode()
+        ).orElseGet(() -> {
+            Address newAddress = Address.builder()
+                    .city(addressDTO.getCity())
+                    .postalCode(addressDTO.getPostalCode())
+                    .countryCode(addressDTO.getCountryCode())
+                    .build();
+            return addressRepository.save(newAddress);
+        });
     }
 
     public boolean customerLimit(Long customerId) {
