@@ -1,9 +1,7 @@
 package com.swiftparcel.customerportal.controller;
 
 import com.swiftparcel.customerportal.dto.ApiResponse;
-import com.swiftparcel.customerportal.dto.DeliveryChangeDTO;
 import com.swiftparcel.customerportal.model.NotificationPreference;
-import com.swiftparcel.customerportal.model.enums.NotificationEventType;
 import com.swiftparcel.customerportal.service.DeliveryService;
 import com.swiftparcel.customerportal.service.NotificationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 public class NotificationController {
 
     private final NotificationService notificationService;
-    private final DeliveryService deliveryService;
 
     @PatchMapping("/api/customerportal/customer/{customerId}/notification-preference")
     @SecurityRequirement(name = "bearerAuth")
@@ -27,25 +24,5 @@ public class NotificationController {
         return notificationService.updateNotificationPreference(customerId, updateRequest)
                 .map( _ -> ResponseEntity.ok(new ApiResponse("Notification preference updated successfully")))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Customer not found")));
-    }
-
-    @PostMapping("/cases/delivery-change")
-    @SecurityRequirement(name = "apiKey")
-    public ResponseEntity<ApiResponse> deliveryChangeWebhook(@RequestBody DeliveryChangeDTO deliveryChangeDTO) {
-        deliveryService.updateDeliveryChangeRequest(deliveryChangeDTO)
-                .ifPresent(request -> {
-                    String message = "Your Delivery change request for the case: "
-                            + request.getCaseNumber()
-                            + " was "
-                            + request.getStatus();
-
-                    notificationService.processNotification(
-                            request.getCustomer().getEmail(),
-                            NotificationEventType.DELIVERY_CHANGE,
-                            message
-                    );
-                });
-
-        return ResponseEntity.ok(new ApiResponse("Webhook received successfully"));
     }
 }
