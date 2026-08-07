@@ -39,11 +39,6 @@ app:
   key:
     api-key: ${WEBHOOK_API_KEY:550e8400-e29b-41d4-a716-446655440000}
   backoffice:
-    base-url: ${BACKOFFICE_BASE_URL:http://localhost:5000}
-    api-key: ${BACKOFFICE_API_KEY:dev-key}
+    base-url: ${BACKOFFICE_BASE_URL:http://localhost:3500}
+    api-key: ${BACKOFFICE_API_KEY:SwiftParcel_Java_Integration_Shared_Secret_2026!}
     timeout-ms: 5000
-
-
-external:
-  api:
-    backoffice-url: ${BACKOFFICE_API_URL:https://parcel-api.free.beeceptor.com/api/integration/parcel}

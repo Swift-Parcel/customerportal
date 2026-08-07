@@ -11,10 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DeliveryChangeWebhookDTO {
-    @JsonProperty("customer_email")
-    private String customerEmail;
-
+public class DeliveryChangeDTO {
     @JsonProperty("case_number")
     private String caseNumber;
 

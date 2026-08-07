@@ -1,0 +1,25 @@
+INSERT INTO quote (
+    pickup_request_id, base_price_eur, weight_charge_eur, surcharge_eur,
+    zone_adjustment_eur, total_price_eur, quote_route_type,
+    quoted_at, quote_expires_at
+) VALUES
+      (1, 5.00, 18.75, 2.00, 0.00, 25.75, 'SAME_CITY',
+       now() - INTERVAL '24 hours' + INTERVAL '1 minute',  now() + INTERVAL '1 minute'),
+      (1, 5.00, 18.75, 2.00, 0.00, 25.75, 'SAME_CITY',
+       now() - INTERVAL '24 hours' + INTERVAL '2 minutes', now() + INTERVAL '2 minutes'),
+      (1, 5.00, 18.75, 2.00, 0.00, 25.75, 'SAME_CITY',
+       now() - INTERVAL '24 hours' + INTERVAL '3 minutes', now() + INTERVAL '3 minutes'),
+      (1, 5.00, 18.75, 2.00, 0.00, 25.75, 'SAME_CITY',
+       now() - INTERVAL '24 hours' + INTERVAL '4 minutes', now() + INTERVAL '4 minutes'),
+      (1, 5.00, 18.75, 2.00, 0.00, 25.75, 'SAME_CITY',
+       now() - INTERVAL '24 hours' + INTERVAL '5 minutes', now() + INTERVAL '5 minutes'),
+      (1, 5.00, 18.75, 2.00, 0.00, 25.75, 'SAME_CITY',
+       now() - INTERVAL '24 hours' + INTERVAL '6 minutes', now() + INTERVAL '6 minutes'),
+      (1, 5.00, 18.75, 2.00, 0.00, 25.75, 'SAME_CITY',
+       now() - INTERVAL '24 hours' + INTERVAL '7 minutes', now() + INTERVAL '7 minutes'),
+      (1, 5.00, 18.75, 2.00, 0.00, 25.75, 'SAME_CITY',
+       now() - INTERVAL '24 hours' + INTERVAL '8 minutes', now() + INTERVAL '8 minutes'),
+      (1, 5.00, 18.75, 2.00, 0.00, 25.75, 'SAME_CITY',
+       now() - INTERVAL '24 hours' + INTERVAL '9 minutes', now() + INTERVAL '9 minutes'),
+      (1, 5.00, 18.75, 2.00, 0.00, 25.75, 'SAME_CITY',
+       now() - INTERVAL '24 hours' + INTERVAL '10 minutes', now() + INTERVAL '10 minutes');

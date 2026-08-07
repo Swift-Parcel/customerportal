@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.stream.Collectors;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -30,17 +31,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Malformed JSON request or type mismatch: " + ex.getMostSpecificCause().getMessage());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Invalid data");
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse> handleBadCredentials(BadCredentialsException ex) {
-        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
-    }
-
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiResponse> handleAuthenticationException(AuthenticationException ex) {
-        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Authentication failed: " + ex.getMessage());
+    @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
+    public ResponseEntity<ApiResponse> handleUnauthorizedExceptions(AuthenticationException ex) {
+        String message = (ex instanceof BadCredentialsException) ? ex.getMessage() : "Authentication failed: " + ex.getMessage();
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, message);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -48,9 +45,15 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.FORBIDDEN, "Access denied: " + ex.getMessage());
     }
 
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ApiResponse> handleNoHandlerFoundException(NoHandlerFoundException ex) {
-        return buildErrorResponse(HttpStatus.NOT_FOUND, "Resource not found: " + ex.getMessage());
+    @ExceptionHandler({NoHandlerFoundException.class, NoSuchElementException.class})
+    public ResponseEntity<ApiResponse> handleNotFoundExceptions(Exception ex) {
+        String message = (ex instanceof NoHandlerFoundException) ? "Resource not found: " + ex.getMessage() : ex.getMessage();
+        return buildErrorResponse(HttpStatus.NOT_FOUND, message);
+    }
+
+    @ExceptionHandler({IllegalStateException.class, IllegalArgumentException.class})
+    public ResponseEntity<ApiResponse> handleBadRequestExceptions(RuntimeException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
