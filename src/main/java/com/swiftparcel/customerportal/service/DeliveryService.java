@@ -3,6 +3,7 @@ package com.swiftparcel.customerportal.service;
 import com.swiftparcel.customerportal.dto.DeliveryChangeResponseDTO;
 import com.swiftparcel.customerportal.dto.DeliveryChangeRequestDTO;
 import com.swiftparcel.customerportal.dto.DeliveryChangeDTO;
+import com.swiftparcel.customerportal.dto.ScheduleResponse;
 import com.swiftparcel.customerportal.model.Customer;
 import com.swiftparcel.customerportal.model.DeliveryChangeRequest;
 import com.swiftparcel.customerportal.model.enums.DeliveryChangeRequestOutcome;
@@ -34,6 +35,7 @@ import java.util.Optional;
 public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
     private final RestTemplate restTemplate;
+    private final ParcelService parcelService;
 
     @Value("${app.backoffice.base-url}")
     private String backendUrl;
@@ -41,9 +43,9 @@ public class DeliveryService {
     @Value("${app.backoffice.api-key}")
     private String apiKey;
 
-    @Transactional
     public DeliveryChangeRequest createRequest(Customer customer, DeliveryChangeRequestDTO dto) {
         validateNoPendingRequest(dto.getTrackingNumber());
+//        validateInTransit(dto.getTrackingNumber());
 
         DeliveryChangeRequest request = DeliveryChangeRequest.builder()
                 .customer(customer)
@@ -53,18 +55,30 @@ public class DeliveryService {
                 .status(DeliveryChangeStatus.REQUESTED)
                 .build();
 
-        request = deliveryRepository.save(request);
+        request = saveRequest(request);
 
         String caseNumber = callBackendForDeliveryChange(dto);
 
-        if (caseNumber != null) {
-            request.setCaseNumber(caseNumber);
-            request.setStatus(DeliveryChangeStatus.PENDING_REVIEW);
-            request = deliveryRepository.save(request);
+        if (caseNumber == null) {
+            throw new RuntimeException("Failed to create delivery change case in backend.");
         }
 
-        return request;
+        request.setCaseNumber(caseNumber);
+        request.setStatus(DeliveryChangeStatus.PENDING_REVIEW);
+        return saveRequest(request);
     }
+
+    @Transactional
+    public DeliveryChangeRequest saveRequest(DeliveryChangeRequest request) {
+        return deliveryRepository.save(request);
+    }
+
+//    private void validateInTransit(String trackingNumber) {
+//        ScheduleResponse schedule = parcelService.getSchedule(trackingNumber);
+//        if (schedule == null || !"IN_TRANSIT".equalsIgnoreCase(schedule.getStatus())) {
+//            throw new IllegalArgumentException("Delivery change requests can only be made for parcels with status in_transit.");
+//        }
+//    }
 
     private void validateNoPendingRequest(String trackingNumber) {
         List<DeliveryChangeStatus> pendingStatuses = List.of(DeliveryChangeStatus.REQUESTED, DeliveryChangeStatus.PENDING_REVIEW);
@@ -114,20 +128,14 @@ public class DeliveryService {
         if (requestOpt.isPresent()) {
             DeliveryChangeRequest request = requestOpt.get();
 
-            if (request.getStatus() == DeliveryChangeStatus.APPROVED || request.getStatus() == DeliveryChangeStatus.REJECTED) {
-                log.info("Request for case {} already processed with status {}. Skipping.",
-                        request.getCaseNumber(), request.getStatus());
-                return Optional.empty();
+            if (deliveryChangeDTO.getOutcome() == DeliveryChangeRequestOutcome.APPROVED) {
+                request.setStatus(DeliveryChangeStatus.APPROVED);
+            } else if (deliveryChangeDTO.getOutcome() == DeliveryChangeRequestOutcome.REJECTED) {
+                request.setStatus(DeliveryChangeStatus.REJECTED);
             }
 
-            if (request.getStatus() == DeliveryChangeStatus.PENDING_REVIEW) {
-                if (deliveryChangeDTO.getOutcome() == DeliveryChangeRequestOutcome.APPROVED) {
-                    request.setStatus(DeliveryChangeStatus.APPROVED);
-                } else if (deliveryChangeDTO.getOutcome() == DeliveryChangeRequestOutcome.REJECTED) {
-                    request.setStatus(DeliveryChangeStatus.REJECTED);
-                }
-                return Optional.of(deliveryRepository.save(request));
-            }
+            DeliveryChangeRequest updatedRequest = deliveryRepository.save(request);
+            return Optional.of(updatedRequest);
         }
         return Optional.empty();
     }
