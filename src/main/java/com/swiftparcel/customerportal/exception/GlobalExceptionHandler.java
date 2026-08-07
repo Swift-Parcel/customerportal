@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Malformed JSON request or type mismatch: " + ex.getMostSpecificCause().getMessage());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Invalid data");
     }
 
     @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
