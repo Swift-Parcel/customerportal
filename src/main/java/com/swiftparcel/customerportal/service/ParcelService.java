@@ -2,31 +2,38 @@ package com.swiftparcel.customerportal.service;
 
 import com.swiftparcel.customerportal.dto.ConfirmDeliveryResponse;
 import com.swiftparcel.customerportal.dto.ParcelDetailResponse;
-import com.swiftparcel.customerportal.dto.ScheduleResponse;
 import com.swiftparcel.customerportal.dto.ParcelDTO;
 import com.swiftparcel.customerportal.dto.ParcelResponseDTO;
+import com.swiftparcel.customerportal.dto.ParcelStatusWebhookDTO;
+import com.swiftparcel.customerportal.dto.ScheduleResponse;
+import com.swiftparcel.customerportal.model.Parcel;
+import com.swiftparcel.customerportal.repository.ParcelRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service
 public class ParcelService {
 
-
     private final RestTemplate restTemplate;
+    private final ParcelRepository parcelRepository;
 
     @Value("${app.backoffice.base-url}")
     private String backendUrl;
 
-    public ParcelService(RestTemplate restTemplate) {
+    public ParcelService(RestTemplate restTemplate, ParcelRepository parcelRepository) {
         this.restTemplate = restTemplate;
+        this.parcelRepository = parcelRepository;
     }
 
     public List<ParcelDTO> getCustomerParcels(String customerEmail, Integer skip, Integer limit) {
@@ -55,7 +62,6 @@ public class ParcelService {
                 .queryParam("trackingNumber", trackingNumber)
                 .toUriString();
 
-
         return restTemplate.getForObject(
                 url,
                 ParcelDetailResponse.class);
@@ -67,7 +73,6 @@ public class ParcelService {
         String url2 = UriComponentsBuilder.fromUriString(backendUrl)
                 .queryParam("trackingNumber", trackingNumber)
                 .toUriString();
-
 
         return restTemplate.getForObject(
                 url2,
@@ -95,4 +100,29 @@ public class ParcelService {
         return new ConfirmDeliveryResponse("Delivery confirmation received");
     }
 
+    @Transactional
+    public Optional<Parcel> updateParcelStatus(ParcelStatusWebhookDTO dto) {
+
+        Optional<Parcel> parcelOpt = parcelRepository.findByTrackingNumber(dto.getTrackingNumber());
+
+        if (parcelOpt.isEmpty()) {
+            log.warn("No local parcel found for tracking number {}. Skipping notification.",
+                    dto.getTrackingNumber());
+            return Optional.empty();
+        }
+
+        Parcel parcel = parcelOpt.get();
+
+        if (parcel.getStatus() == dto.getParcelStatus()) {
+            log.info("Parcel {} already has status {}. Skipping.",
+                    parcel.getTrackingNumber(), parcel.getStatus());
+            return Optional.empty();
+        }
+
+        log.info("Updating parcel {} status: {} -> {}",
+                parcel.getTrackingNumber(), parcel.getStatus(), dto.getParcelStatus());
+
+        parcel.setStatus(dto.getParcelStatus());
+        return Optional.of(parcelRepository.save(parcel));
+    }
 }
