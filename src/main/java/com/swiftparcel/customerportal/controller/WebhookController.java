@@ -2,36 +2,32 @@ package com.swiftparcel.customerportal.controller;
 
 import com.swiftparcel.customerportal.dto.ApiResponse;
 import com.swiftparcel.customerportal.dto.DeliveryChangeDTO;
-import com.swiftparcel.customerportal.model.NotificationPreference;
 import com.swiftparcel.customerportal.model.enums.NotificationEventType;
 import com.swiftparcel.customerportal.service.DeliveryService;
 import com.swiftparcel.customerportal.service.NotificationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/webhooks")
 @RequiredArgsConstructor
-public class NotificationController {
+@Slf4j
+public class WebhookController {
 
-    private final NotificationService notificationService;
     private final DeliveryService deliveryService;
-
-    @PatchMapping("/api/customerportal/customer/{customerId}/notification-preference")
-    @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<ApiResponse> updatingNotificationPreference(@PathVariable Long customerId, @Valid @RequestBody NotificationPreference updateRequest) {
-        return notificationService.updateNotificationPreference(customerId, updateRequest)
-                .map( _ -> ResponseEntity.ok(new ApiResponse("Notification preference updated successfully")))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Customer not found")));
-    }
+    private final NotificationService notificationService;
 
     @PostMapping("/cases/delivery-change")
     @SecurityRequirement(name = "apiKey")
     public ResponseEntity<ApiResponse> deliveryChangeWebhook(@RequestBody DeliveryChangeDTO deliveryChangeDTO) {
+        log.info("Received delivery change webhook for case: {}", deliveryChangeDTO.getCaseNumber());
+        
         deliveryService.updateDeliveryChangeRequest(deliveryChangeDTO)
                 .ifPresent(request -> {
                     String message = "Your Delivery change request for the case: "
