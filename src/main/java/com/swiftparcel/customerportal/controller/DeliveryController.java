@@ -26,6 +26,7 @@ public class DeliveryController {
             @PathVariable Long customerId,
             @Valid @RequestBody DeliveryChangeRequestDTO requestDTO) {
 
+        // Get the Authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Customer principal = (Customer) authentication.getPrincipal();
 
