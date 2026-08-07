@@ -1,28 +1,30 @@
 package com.swiftparcel.customerportal.controller;
 
 import com.swiftparcel.customerportal.dto.ApiResponse;
-import com.swiftparcel.customerportal.dto.DeliveryChangeWebhookDTO;
+import com.swiftparcel.customerportal.dto.DeliveryChangeDTO;
 import com.swiftparcel.customerportal.dto.ParcelStatusWebhookDTO;
 import com.swiftparcel.customerportal.model.NotificationPreference;
 import com.swiftparcel.customerportal.model.enums.NotificationEventType;
+import com.swiftparcel.customerportal.service.DeliveryService;
 import com.swiftparcel.customerportal.service.NotificationService;
+import com.swiftparcel.customerportal.service.ParcelService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping
+@RequiredArgsConstructor
+@Slf4j
 public class NotificationController {
 
     private final NotificationService notificationService;
-
-    public NotificationController(NotificationService notificationService) {
-        this.notificationService = notificationService;
-    }
+    private final DeliveryService deliveryService;
+    private final ParcelService parcelService;
 
     @PatchMapping("/api/customerportal/customer/{customerId}/notification-preference")
     @SecurityRequirement(name = "bearerAuth")
@@ -32,37 +34,46 @@ public class NotificationController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Customer not found")));
     }
 
-    @PostMapping("/api/webhooks/cases/delivery-change")
+    @PostMapping("/cases/delivery-change")
     @SecurityRequirement(name = "apiKey")
-    public ResponseEntity<ApiResponse> deliveryChangeWebhook(@RequestBody DeliveryChangeWebhookDTO deliveryChangeWebhookDTO) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
-            String message = "Your Delivery change request for the case: "
-                    + deliveryChangeWebhookDTO.getCaseNumber()
-                    + " was "
-                    + deliveryChangeWebhookDTO.getOutcome();
+    public ResponseEntity<ApiResponse> deliveryChangeWebhook(@RequestBody DeliveryChangeDTO deliveryChangeDTO) {
+        deliveryService.updateDeliveryChangeRequest(deliveryChangeDTO)
+                .ifPresent(request -> {
+                    String message = "Your Delivery change request for the case: "
+                            + request.getCaseNumber()
+                            + " was "
+                            + request.getStatus();
 
-            notificationService.processNotification(deliveryChangeWebhookDTO.getCustomerEmail(), NotificationEventType.DELIVERY_CHANGE, message);
+                    notificationService.processNotification(
+                            request.getCustomer().getEmail(),
+                            NotificationEventType.DELIVERY_CHANGE,
+                            message
+                    );
+                });
 
-            return ResponseEntity.ok(new ApiResponse("Webhook received successfully"));
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse("Not authenticated"));
+        return ResponseEntity.ok(new ApiResponse("Webhook received successfully"));
     }
 
-    @PostMapping("/api/webhooks/parcel/status-change")
+
+    @PostMapping("/parcels/status")
     @SecurityRequirement(name = "apiKey")
-    public ResponseEntity<ApiResponse> parcelStatusChangeWebhook(@RequestBody ParcelStatusWebhookDTO parcelStatusUpdateWebhookDTO){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
-            String message = "The status for the parcel with tracking number "
-                    + parcelStatusUpdateWebhookDTO.getTrackingNumber()
-                    + " was updated to"
-                    + parcelStatusUpdateWebhookDTO.getParcelStatus();
+    public ResponseEntity<ApiResponse> parcelStatusWebhook(
+            @Valid @RequestBody ParcelStatusWebhookDTO dto) {
 
-//            notificationService.processNotification(parcelStatusUpdateWebhookDTO.getCustomerEmail(), NotificationEventType.DELIVERY_CHANGE, message);
+        log.info("Received parcel status webhook for tracking number: {}", dto.getTrackingNumber());
 
-            return ResponseEntity.ok(new ApiResponse("Webhook received successfully"));
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse("Not authenticated"));
+        parcelService.updateParcelStatus(dto)
+                .ifPresent(parcel -> {
+                    String message = "Your parcel " + parcel.getTrackingNumber()
+                            + " status changed to " + parcel.getStatus();
+
+                    notificationService.processNotification(
+                            parcel.getCustomer().getEmail(),
+                            NotificationEventType.PARCEL_STATUS,
+                            message
+                    );
+                });
+
+        return ResponseEntity.ok(new ApiResponse("Webhook received successfully"));
     }
 }

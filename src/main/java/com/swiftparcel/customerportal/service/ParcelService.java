@@ -7,6 +7,7 @@ import com.swiftparcel.customerportal.dto.ParcelResponseDTO;
 import com.swiftparcel.customerportal.dto.ParcelStatusWebhookDTO;
 import com.swiftparcel.customerportal.dto.ScheduleResponse;
 import com.swiftparcel.customerportal.model.Parcel;
+import com.swiftparcel.customerportal.model.enums.ParcelStatus;
 import com.swiftparcel.customerportal.repository.ParcelRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -94,6 +95,8 @@ public class ParcelService {
                 .toUriString();
 
         Map<String, String> body = Map.of("customer_email", customerEmail);
+
+
 
         restTemplate.patchForObject(url, body, String.class);
 
