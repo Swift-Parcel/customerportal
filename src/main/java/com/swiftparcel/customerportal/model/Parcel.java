@@ -34,6 +34,6 @@ public class Parcel {
     ParcelStatus status;
 
     @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "status_updated_at", nullable = false)
     LocalDateTime updatedAt;
 }
