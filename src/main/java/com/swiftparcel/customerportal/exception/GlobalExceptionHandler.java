@@ -10,6 +10,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.stream.Collectors;
@@ -54,6 +56,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({IllegalStateException.class, IllegalArgumentException.class})
     public ResponseEntity<ApiResponse> handleBadRequestExceptions(RuntimeException ex) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(HttpStatusCodeException.class)
+    public ResponseEntity<ApiResponse> handleHttpStatusCodeException(HttpStatusCodeException ex) {
+        return buildErrorResponse((HttpStatus) ex.getStatusCode(), "External service error: " + ex.getResponseBodyAsString());
+    }
+
+    @ExceptionHandler(RestClientException.class)
+    public ResponseEntity<ApiResponse> handleRestClientException(RestClientException ex) {
+        return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, "External service unavailable: " + ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

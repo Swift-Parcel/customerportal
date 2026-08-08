@@ -1,8 +1,6 @@
 package com.swiftparcel.customerportal.service;
 
-import com.swiftparcel.customerportal.dto.DeliveryChangeResponseDTO;
-import com.swiftparcel.customerportal.dto.DeliveryChangeRequestDTO;
-import com.swiftparcel.customerportal.dto.DeliveryChangeDTO;
+import com.swiftparcel.customerportal.dto.*;
 import com.swiftparcel.customerportal.model.Customer;
 import com.swiftparcel.customerportal.model.DeliveryChangeRequest;
 import com.swiftparcel.customerportal.model.enums.DeliveryChangeRequestOutcome;
@@ -11,13 +9,12 @@ import com.swiftparcel.customerportal.repository.DeliveryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.ZoneId;
@@ -27,13 +24,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
+// http://localhost:3500/api/integration/parcels/SP-20261016
+// http://localhost:3500/api/integration/parcels/SP-20261016
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
     private final RestTemplate restTemplate;
+    private final ParcelService parcelService;
 
     @Value("${app.backoffice.base-url}")
     private String backendUrl;
@@ -41,38 +40,64 @@ public class DeliveryService {
     @Value("${app.backoffice.api-key}")
     private String apiKey;
 
-    @Transactional
     public DeliveryChangeRequest createRequest(Customer customer, DeliveryChangeRequestDTO dto) {
         validateNoPendingRequest(dto.getTrackingNumber());
+        validateInTransit(dto.getTrackingNumber());
+
+        String caseNumber = callBackendForDeliveryChange(dto);
+
+        if (caseNumber == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create delivery change case in backend.");
+        }
 
         DeliveryChangeRequest request = DeliveryChangeRequest.builder()
                 .customer(customer)
                 .trackingNumber(dto.getTrackingNumber())
+                .caseNumber(caseNumber)
                 .requestedDate(dto.getRequestedDate())
                 .requestedSlot(dto.getRequestedSlot() != null ? dto.getRequestedSlot().name() : null)
-                .status(DeliveryChangeStatus.REQUESTED)
+                .status(DeliveryChangeStatus.PENDING_REVIEW)
                 .build();
 
-        request = deliveryRepository.save(request);
+        return deliveryRepository.save(request);
+    }
 
-        String caseNumber = callBackendForDeliveryChange(dto);
-
-        if (caseNumber != null) {
-            request.setCaseNumber(caseNumber);
-            request.setStatus(DeliveryChangeStatus.PENDING_REVIEW);
-            request = deliveryRepository.save(request);
+    private void validateInTransit(String trackingNumber) {
+        String status = fetchParcelStatus(trackingNumber);
+        if (!"IN_TRANSIT".equalsIgnoreCase(status)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery change requests can only be made for parcels with status IN_TRANSIT.");
         }
+    }
 
-        return request;
+    private String fetchParcelStatus(String trackingNumber) {
+        String url = UriComponentsBuilder.fromUriString(backendUrl)
+                .path("/api/integration/parcels/{trackingNumber}")
+                .buildAndExpand(trackingNumber)
+                .toUriString();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("x-api-key", apiKey);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<ParcelStatusDTO> response = restTemplate.exchange(url, HttpMethod.GET, entity, ParcelStatusDTO.class);
+            if (response.getBody() != null) {
+                return response.getBody().getParcelStatus();
+            }
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Received empty response from back-office.");
+        } catch (RestClientException e) {
+            log.error("Error fetching parcel status: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Back-office is unreachable: " + e.getMessage());
+        }
     }
 
     private void validateNoPendingRequest(String trackingNumber) {
         List<DeliveryChangeStatus> pendingStatuses = List.of(DeliveryChangeStatus.REQUESTED, DeliveryChangeStatus.PENDING_REVIEW);
-        boolean hasPending = deliveryRepository.findByTrackingNumber(trackingNumber).stream()
-                .anyMatch(r -> pendingStatuses.contains(r.getStatus()));
+        boolean hasPending = deliveryRepository.existsByTrackingNumberAndStatusIn(trackingNumber, pendingStatuses);
 
         if (hasPending) {
-            throw new IllegalArgumentException("A pending delivery change request already exists for this parcel.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A pending delivery change request already exists for this parcel.");
         }
     }
 
@@ -114,20 +139,18 @@ public class DeliveryService {
         if (requestOpt.isPresent()) {
             DeliveryChangeRequest request = requestOpt.get();
 
-            if (request.getStatus() == DeliveryChangeStatus.APPROVED || request.getStatus() == DeliveryChangeStatus.REJECTED) {
-                log.info("Request for case {} already processed with status {}. Skipping.",
-                        request.getCaseNumber(), request.getStatus());
+            if (request.getStatus() != DeliveryChangeStatus.PENDING_REVIEW) {
                 return Optional.empty();
             }
 
-            if (request.getStatus() == DeliveryChangeStatus.PENDING_REVIEW) {
-                if (deliveryChangeDTO.getOutcome() == DeliveryChangeRequestOutcome.APPROVED) {
-                    request.setStatus(DeliveryChangeStatus.APPROVED);
-                } else if (deliveryChangeDTO.getOutcome() == DeliveryChangeRequestOutcome.REJECTED) {
-                    request.setStatus(DeliveryChangeStatus.REJECTED);
-                }
-                return Optional.of(deliveryRepository.save(request));
+            if (deliveryChangeDTO.getOutcome() == DeliveryChangeRequestOutcome.APPROVED) {
+                request.setStatus(DeliveryChangeStatus.APPROVED);
+            } else if (deliveryChangeDTO.getOutcome() == DeliveryChangeRequestOutcome.REJECTED) {
+                request.setStatus(DeliveryChangeStatus.REJECTED);
             }
+
+            DeliveryChangeRequest updatedRequest = deliveryRepository.save(request);
+            return Optional.of(updatedRequest);
         }
         return Optional.empty();
     }

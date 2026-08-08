@@ -1,10 +1,10 @@
 package com.swiftparcel.customerportal.controller;
 
 import com.swiftparcel.customerportal.dto.ApiResponse;
+
 import com.swiftparcel.customerportal.dto.DeliveryChangeDTO;
 import com.swiftparcel.customerportal.dto.ParcelStatusWebhookDTO;
 import com.swiftparcel.customerportal.model.NotificationPreference;
-import com.swiftparcel.customerportal.model.enums.NotificationEventType;
 import com.swiftparcel.customerportal.service.DeliveryService;
 import com.swiftparcel.customerportal.service.NotificationService;
 import com.swiftparcel.customerportal.service.ParcelService;

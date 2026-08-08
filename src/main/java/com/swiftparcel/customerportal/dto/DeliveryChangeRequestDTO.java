@@ -5,6 +5,7 @@ import com.swiftparcel.customerportal.model.enums.TimeSlot;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class DeliveryChangeRequestDTO {
 
     @NotBlank(message = "Tracking number is required")
     @JsonProperty("tracking_number")
+    @Pattern(regexp = "^SP-[A-Z0-9]{8}$", message = "Tracking number must match SP-XXXXXXXX")
     private String trackingNumber;
 
     @NotNull(message = "Requested date is required")
