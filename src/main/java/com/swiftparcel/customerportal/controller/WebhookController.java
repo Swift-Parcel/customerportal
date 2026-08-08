@@ -1,6 +1,7 @@
 package com.swiftparcel.customerportal.controller;
 
 import com.swiftparcel.customerportal.dto.ApiResponse;
+import com.swiftparcel.customerportal.dto.CaseChangeDTO;
 import com.swiftparcel.customerportal.dto.DeliveryChangeDTO;
 import com.swiftparcel.customerportal.model.enums.NotificationEventType;
 import com.swiftparcel.customerportal.service.DeliveryService;
@@ -41,6 +42,22 @@ public class WebhookController {
                             message
                     );
                 });
+
+        return ResponseEntity.ok(new ApiResponse("Webhook received successfully"));
+    }
+
+
+    @PostMapping("/cases/status")
+    @SecurityRequirement(name = "apiKey")
+    public ResponseEntity<ApiResponse> caseChangeWebhook(@RequestBody CaseChangeDTO caseChangeDTO) {
+        log.info("Received case status change webhook for case: {}", caseChangeDTO.getCaseNumber());
+
+        // todo Update the case table and extract the Customer from that table
+        notificationService.processNotification(
+                "custumerEmail",
+                NotificationEventType.DELIVERY_CHANGE,
+                "message"
+        );
 
         return ResponseEntity.ok(new ApiResponse("Webhook received successfully"));
     }
