@@ -55,7 +55,7 @@ public class NotificationController {
     }
 
 
-    @PostMapping("/parcels/status")
+    @PostMapping("/api/webhooks/parcels/status")
     @SecurityRequirement(name = "apiKey")
     public ResponseEntity<ApiResponse> parcelStatusWebhook(
             @Valid @RequestBody ParcelStatusWebhookDTO dto) {
