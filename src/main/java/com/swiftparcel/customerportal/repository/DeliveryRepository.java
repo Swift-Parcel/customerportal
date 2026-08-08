@@ -14,6 +14,7 @@ public interface DeliveryRepository extends JpaRepository<DeliveryChangeRequest,
     List<DeliveryChangeRequest> findByCustomerId(Long customerId);
     List<DeliveryChangeRequest> findByTrackingNumber(String trackingNumber);
     Optional<DeliveryChangeRequest> findByCaseNumber(String caseNumber);
+    boolean existsByTrackingNumberAndStatusIn(String trackingNumber, List<DeliveryChangeStatus> statuses);
 
     @Query("SELECT d FROM DeliveryChangeRequest d WHERE d.customer.id = :customerId AND d.trackingNumber = :trackingNumber AND d.status IN :statuses")
     List<DeliveryChangeRequest> findByCustomerIdAndTrackingNumberAndStatusIn(Long customerId, String trackingNumber, List<DeliveryChangeStatus> statuses);
