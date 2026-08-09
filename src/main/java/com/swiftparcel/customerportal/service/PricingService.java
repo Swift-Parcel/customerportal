@@ -152,4 +152,20 @@ public class PricingService {
 
         return quotesRepository.save(quote);
     }
+
+    @Transactional
+    public PickupRequest confirmQuote(Long quoteId, Long customerId) {
+        Quote quote = quotesRepository.findById(quoteId)
+                .orElseThrow(() -> new IllegalStateException("Pickup request not found: " + quoteId));
+
+        PickupRequest pickupRequest = pickupRequestRepository.findById(quote.getPickupRequestId())
+                .orElseThrow(() -> new IllegalStateException("Quote request not found: " + quote.getPickupRequestId()));
+
+        if (!pickupRequest.getCustomerId().equals(customerId)) {
+            throw new AccessDeniedException("Pickup request does not belong to the customer");
+        }
+
+
+
+    }
 }

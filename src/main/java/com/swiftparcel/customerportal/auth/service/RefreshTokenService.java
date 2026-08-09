@@ -1,6 +1,7 @@
-package com.swiftparcel.customerportal.auth;
+package com.swiftparcel.customerportal.auth.service;
 
-import com.swiftparcel.customerportal.auth.domain.RefreshToken;
+import com.swiftparcel.customerportal.auth.dto.RotationResult;
+import com.swiftparcel.customerportal.auth.model.RefreshToken;
 import com.swiftparcel.customerportal.model.*;
 import com.swiftparcel.customerportal.auth.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
