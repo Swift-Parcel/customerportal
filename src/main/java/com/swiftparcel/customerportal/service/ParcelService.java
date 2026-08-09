@@ -1,15 +1,12 @@
 package com.swiftparcel.customerportal.service;
 
-import com.swiftparcel.customerportal.dto.ConfirmDeliveryResponse;
-import com.swiftparcel.customerportal.dto.ParcelDetailResponse;
-import com.swiftparcel.customerportal.dto.ParcelDTO;
-import com.swiftparcel.customerportal.dto.ParcelResponseDTO;
-import com.swiftparcel.customerportal.dto.ParcelStatusWebhookDTO;
-import com.swiftparcel.customerportal.dto.ScheduleResponse;
+
+import com.swiftparcel.customerportal.dto.*;
 import com.swiftparcel.customerportal.model.Parcel;
 import com.swiftparcel.customerportal.model.enums.ParcelStatus;
 import com.swiftparcel.customerportal.repository.ParcelRepository;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,7 +100,18 @@ public class ParcelService {
         return new ConfirmDeliveryResponse("Delivery confirmation received");
     }
 
-    @Transactional
+    public ApiResponse changeDelivery(String trackingNumber, ChangeDeliveryDTO changeDeliveryDTO) {
+        validate(trackingNumber);
+
+        String url = UriComponentsBuilder.fromUriString(backendUrl)
+                .path("/api/integration/parcels/{trackingNumber}/delivery-change")
+                .buildAndExpand(trackingNumber)
+                .toUriString();
+
+        return restTemplate.patchForObject(url, changeDeliveryDTO, ApiResponse.class);
+    }
+  
+  @Transactional
     public Optional<Parcel> updateParcelStatus(ParcelStatusWebhookDTO dto) {
 
         Optional<Parcel> parcelOpt = parcelRepository.findByTrackingNumber(dto.getTrackingNumber());
@@ -128,4 +136,6 @@ public class ParcelService {
         parcel.setStatus(dto.getParcelStatus());
         return Optional.of(parcelRepository.save(parcel));
     }
+
 }
+    
