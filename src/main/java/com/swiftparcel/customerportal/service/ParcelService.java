@@ -3,6 +3,8 @@ package com.swiftparcel.customerportal.service;
 
 import com.swiftparcel.customerportal.dto.*;
 import com.swiftparcel.customerportal.model.Parcel;
+import com.swiftparcel.customerportal.model.PickupRequest;
+import com.swiftparcel.customerportal.model.Quote;
 import com.swiftparcel.customerportal.model.enums.ParcelStatus;
 import com.swiftparcel.customerportal.repository.ParcelRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -135,6 +137,14 @@ public class ParcelService {
 
         parcel.setStatus(dto.getParcelStatus());
         return Optional.of(parcelRepository.save(parcel));
+    }
+
+    @Transactional
+    public Optional<Parcel> confirmParcel (PickupRequest pickupRequest, Quote quote){
+
+
+
+        return null;
     }
 
 }

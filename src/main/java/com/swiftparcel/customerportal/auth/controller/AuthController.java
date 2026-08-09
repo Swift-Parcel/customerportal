@@ -1,5 +1,7 @@
-package com.swiftparcel.customerportal.auth;
+package com.swiftparcel.customerportal.auth.controller;
 
+import com.swiftparcel.customerportal.auth.dto.AuthResponse;
+import com.swiftparcel.customerportal.auth.service.AuthService;
 import com.swiftparcel.customerportal.auth.dto.LoginRequest;
 import com.swiftparcel.customerportal.auth.dto.RefreshRequest;
 import com.swiftparcel.customerportal.dto.ApiResponse;

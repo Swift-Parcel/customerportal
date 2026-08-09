@@ -14,6 +14,7 @@ import com.swiftparcel.customerportal.repository.QuotesRepository;
 import com.swiftparcel.customerportal.repository.RouteRepository;
 import com.swiftparcel.customerportal.repository.ServiceRateRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,9 +41,13 @@ public class PricingService {
     }
 
     @Transactional
-    public Quote createQuoteForPickupRequest(Long pickupRequestId) {
+    public Quote createQuoteForPickupRequest(Long pickupRequestId, Long customerId) {
         PickupRequest pickupRequest = pickupRequestRepository.findById(pickupRequestId)
                 .orElseThrow(() -> new IllegalStateException("Pickup request not found: " + pickupRequestId));
+
+        if (!pickupRequest.getCustomerId().equals(customerId)) {
+            throw new AccessDeniedException("Pickup request does not belong to the customer");
+        }
 
         Address senderAddress = addressRepository.findById(pickupRequest.getSenderAddress())
                 .orElseThrow(() -> new IllegalStateException(
@@ -61,7 +66,7 @@ public class PricingService {
 
         Quote quote = saveQuote(pricing, pickupRequestId, route.getRouteType());
 
-        pickupRequest.setQuotedPrice(pricing.getTotalPrice().floatValue());
+        pickupRequest.setQuotedPrice(pricing.getTotalPrice());
         pickupRequest.setCurrentStatus(CurrentStatus.QUOTED);
         pickupRequestRepository.save(pickupRequest);
 
@@ -146,5 +151,21 @@ public class PricingService {
                 .build();
 
         return quotesRepository.save(quote);
+    }
+
+    @Transactional
+    public PickupRequest confirmQuote(Long quoteId, Long customerId) {
+        Quote quote = quotesRepository.findById(quoteId)
+                .orElseThrow(() -> new IllegalStateException("Pickup request not found: " + quoteId));
+
+        PickupRequest pickupRequest = pickupRequestRepository.findById(quote.getPickupRequestId())
+                .orElseThrow(() -> new IllegalStateException("Quote request not found: " + quote.getPickupRequestId()));
+
+        if (!pickupRequest.getCustomerId().equals(customerId)) {
+            throw new AccessDeniedException("Pickup request does not belong to the customer");
+        }
+
+
+
     }
 }

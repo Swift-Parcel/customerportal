@@ -7,6 +7,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -19,7 +20,10 @@ public class PickupRequestDTO {
     @FutureOrPresent(message = "Invalid date in the past")
     private LocalDate preferredPickupDate;
     @DecimalMax(value = "5000", message = "Declared value cannot exceed €5,000.")
-    private float declaredValue;
+    @DecimalMin(value = "0.00", message = "Declared value cannot be negative")
+    @Digits(integer = 6, fraction = 2)
+    @NotNull
+    private BigDecimal declaredValue;
     @Max(value = 120, message = "Maximum single dimension: 120cm.")
     private int parcelHeight;
     @Max(value = 120, message = "Maximum single dimension: 120cm.")
