@@ -38,6 +38,7 @@ public class SecurityConfig {
                                         "/api/customerportal/error")
                                 .permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/customerportal/customer").permitAll()
+                                .requestMatchers("/api/customerportal/cases/**").authenticated()
                                 .anyRequest().authenticated())
                 .sessionManagement(sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
