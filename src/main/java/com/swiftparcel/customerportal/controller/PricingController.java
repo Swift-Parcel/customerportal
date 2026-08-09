@@ -25,7 +25,8 @@ public class PricingController {
 
     @PostMapping("/quotes/{pickupRequestId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public Quote createQuote(@PathVariable Long pickupRequestId) {
-        return pricingService.createQuoteForPickupRequest(pickupRequestId);
+    public Quote createQuote(@PathVariable Long pickupRequestId,
+                             @AuthenticationPrincipal Customer customer) {
+        return pricingService.createQuoteForPickupRequest(pickupRequestId, customer.getId());
     }
 }
