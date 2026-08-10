@@ -42,6 +42,9 @@ public class PickupRequest {
     @Column(name = "recipient_name", nullable = false, length = 150)
     String recipientName;
 
+    @Column(name = "tracking_number", nullable = false, length = 115)
+    String trackingNumber;
+
     @Column(name = "recipient_address_id", nullable = false)
     Long recipientAddress;
 
