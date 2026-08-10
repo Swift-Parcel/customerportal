@@ -23,7 +23,7 @@ public class ComplaintCase {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String caseNumber; // Format e.g., CASE-2026-XXXXX
+    private String caseNumber; // Format for example, CASE-2026-XXXXX
 
     @ElementCollection
     @CollectionTable(name = "case_tracking_numbers", joinColumns = @JoinColumn(name = "case_id"))
@@ -38,7 +38,7 @@ public class ComplaintCase {
     private String description;
 
     @Column(nullable = false)
-    private String channel; // e.g., "PORTAL"
+    private String channel; // for example "PORTAL"
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -4,6 +4,8 @@ import com.swiftparcel.customerportal.dto.CaseResponse;
 import com.swiftparcel.customerportal.dto.CaseSummaryResponse;
 import com.swiftparcel.customerportal.dto.CreateCaseRequest;
 import com.swiftparcel.customerportal.dto.SubmitFeedbackRequest;
+import com.swiftparcel.customerportal.dto.integration.BackOfficeCaseRequest;
+import com.swiftparcel.customerportal.dto.integration.BackOfficeCaseResponse;
 import com.swiftparcel.customerportal.model.ComplaintCase;
 import com.swiftparcel.customerportal.model.Customer;
 import com.swiftparcel.customerportal.model.enums.CaseStatus;
@@ -29,6 +31,7 @@ public class ComplaintCaseService {
     private final ComplaintCaseRepository caseRepository;
     private final CustomerRepository customerRepository;
     private final PickupRequestRepository pickupRequestRepository;
+    private final BackOfficeIntegrationService backOfficeService;
 
     @Transactional
     public CaseResponse createCase(CreateCaseRequest request, String customerEmail) {
@@ -38,6 +41,16 @@ public class ComplaintCaseService {
                         HttpStatus.NOT_FOUND,
                         "Customer with email " + customerEmail + " not found"
                 ));
+
+        BackOfficeCaseRequest backOfficeRequest = BackOfficeCaseRequest.builder()
+                .customerEmail(customer.getEmail())
+                .trackingNumbers(request.getTrackingNumbers())
+                .caseType(request.getCaseType().name())
+                .description(request.getDescription())
+                .build();
+
+        String backOfficeResponse = backOfficeService.sendCaseToBackOffice(backOfficeRequest);
+
 
         String generatedCaseNumber = "CASE-2026-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
@@ -52,6 +65,7 @@ public class ComplaintCaseService {
 
         ComplaintCase savedCase = caseRepository.save(complaintCase);
 
+
         return CaseResponse.builder()
                 .caseNumber(savedCase.getCaseNumber())
                 .trackingNumbers(savedCase.getTrackingNumbers())
@@ -60,6 +74,10 @@ public class ComplaintCaseService {
                 .channel(savedCase.getChannel())
                 .createdAt(savedCase.getCreatedAt())
                 .build();
+
+
+
+
     }
 
     @Transactional(readOnly = true)
