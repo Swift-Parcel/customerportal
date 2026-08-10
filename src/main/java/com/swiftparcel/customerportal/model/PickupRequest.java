@@ -35,6 +35,9 @@ public class PickupRequest {
     @Column(name = "sender_address_id", nullable = false)
     Long senderAddress;
 
+    @Column(name = "accepted_quote_id")
+    Long acceptedQuoteId;
+
     @Column(name = "recipient_name", nullable = false, length = 150)
     String recipientName;
 
@@ -59,9 +62,6 @@ public class PickupRequest {
 
     @Column(name = "declared_value_eur",precision = 10, scale = 2)
     BigDecimal declaredValue;
-
-    @Column(name = "quoted_price_eur", precision = 10, scale = 2)
-    BigDecimal quotedPrice;
 
     @Column(name = "preferred_pickup_date", nullable = false)
     LocalDate preferredPickupDate;

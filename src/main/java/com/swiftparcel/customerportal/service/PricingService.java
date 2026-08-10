@@ -66,7 +66,7 @@ public class PricingService {
 
         Quote quote = saveQuote(pricing, pickupRequestId, route.getRouteType());
 
-        pickupRequest.setQuotedPrice(pricing.getTotalPrice());
+
         pickupRequest.setCurrentStatus(CurrentStatus.QUOTED);
         pickupRequestRepository.save(pickupRequest);
 
@@ -165,7 +165,7 @@ public class PricingService {
             throw new AccessDeniedException("Pickup request does not belong to the customer");
         }
 
-
+        return null;
 
     }
 }
