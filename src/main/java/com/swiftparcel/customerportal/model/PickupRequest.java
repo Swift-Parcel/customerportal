@@ -8,6 +8,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity
@@ -66,7 +67,19 @@ public class PickupRequest {
     @Column(name = "preferred_pickup_date", nullable = false)
     LocalDate preferredPickupDate;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    Instant createdAt;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "preferred_time_slot", nullable = false, length = 16)
     TimeSlot preferredTimeSlot;
+
+    @Column(name = "paid_at")
+    Instant paidAt;
+
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
 }
