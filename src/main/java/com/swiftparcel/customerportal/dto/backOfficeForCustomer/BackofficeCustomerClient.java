@@ -1,4 +1,4 @@
-package com.swiftparcel.customerportal.backOffice;
+package com.swiftparcel.customerportal.dto.backOfficeForCustomer;
 
 
 import lombok.RequiredArgsConstructor;

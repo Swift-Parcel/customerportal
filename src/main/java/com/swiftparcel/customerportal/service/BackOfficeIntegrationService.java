@@ -1,7 +1,7 @@
 package com.swiftparcel.customerportal.service;
 
-import com.swiftparcel.customerportal.dto.integration.BackOfficeCaseRequest;
-import com.swiftparcel.customerportal.dto.integration.BackOfficeCaseResponse;
+import com.swiftparcel.customerportal.dto.integrationComplainCase.BackOfficeCaseRequest;
+import com.swiftparcel.customerportal.dto.integrationComplainCase.BackOfficeCaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;

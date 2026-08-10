@@ -1,7 +1,7 @@
 package com.swiftparcel.customerportal.service;
 
-import com.swiftparcel.customerportal.backOffice.BackofficeCustomerClient;
-import com.swiftparcel.customerportal.backOffice.BackofficeCustomerRequest;
+import com.swiftparcel.customerportal.dto.backOfficeForCustomer.BackofficeCustomerClient;
+import com.swiftparcel.customerportal.dto.backOfficeForCustomer.BackofficeCustomerRequest;
 import com.swiftparcel.customerportal.dto.AddressDTO;
 import com.swiftparcel.customerportal.dto.CustomerAccountRequest;
 import com.swiftparcel.customerportal.dto.CustomerAccountResponse;

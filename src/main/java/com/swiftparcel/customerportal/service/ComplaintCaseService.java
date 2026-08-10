@@ -4,13 +4,11 @@ import com.swiftparcel.customerportal.dto.CaseResponse;
 import com.swiftparcel.customerportal.dto.CaseSummaryResponse;
 import com.swiftparcel.customerportal.dto.CreateCaseRequest;
 import com.swiftparcel.customerportal.dto.SubmitFeedbackRequest;
-import com.swiftparcel.customerportal.dto.integration.BackOfficeCaseRequest;
-import com.swiftparcel.customerportal.dto.integration.BackOfficeCaseResponse;
+import com.swiftparcel.customerportal.dto.integrationComplainCase.BackOfficeCaseRequest;
 import com.swiftparcel.customerportal.model.ComplaintCase;
 import com.swiftparcel.customerportal.model.Customer;
 import com.swiftparcel.customerportal.model.enums.CaseStatus;
 import org.springframework.transaction.annotation.Transactional;
-import com.swiftparcel.customerportal.model.PickupRequest;
 import com.swiftparcel.customerportal.repository.ComplaintCaseRepository;
 import com.swiftparcel.customerportal.repository.CustomerRepository;
 import com.swiftparcel.customerportal.repository.PickupRequestRepository;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.time.Year;
 import java.util.List;
 import java.util.UUID;
 
