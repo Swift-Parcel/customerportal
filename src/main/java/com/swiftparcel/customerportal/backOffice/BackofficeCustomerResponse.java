@@ -1,5 +1,9 @@
 package com.swiftparcel.customerportal.backOffice;
 
-public record BackofficeCustomerResponse(String backofficeId, String email) {
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-}
+public record BackofficeCustomerResponse(
+        @JsonProperty("customer_id") String customerId,
+        @JsonProperty("status") String status,
+        @JsonProperty("message") String message
+) {}

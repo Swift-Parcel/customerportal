@@ -1,5 +1,7 @@
 package com.swiftparcel.customerportal.service;
 
+import com.swiftparcel.customerportal.backOffice.BackofficeCustomerClient;
+import com.swiftparcel.customerportal.backOffice.BackofficeCustomerRequest;
 import com.swiftparcel.customerportal.dto.AddressDTO;
 import com.swiftparcel.customerportal.dto.CustomerAccountRequest;
 import com.swiftparcel.customerportal.dto.CustomerAccountResponse;
@@ -19,6 +21,7 @@ import java.util.Optional;
 public class CustomerService {
     private final CustomerRepository customerRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BackofficeCustomerClient backofficeCustomerClient;
 
 
     public CustomerAccountResponse createCustomer(CustomerAccountRequest customerAccountRequest) {
@@ -57,6 +60,15 @@ public class CustomerService {
         customer.setNotificationPreference(defaultPreferences);
 
         Customer savedCustomer = customerRepository.save(customer);
+
+        BackofficeCustomerRequest backofficeRequest = BackofficeCustomerRequest.builder()
+                .email(savedCustomer.getEmail())
+                .fullName(savedCustomer.getFullName())
+                .phoneNumber(savedCustomer.getPhoneNumber())
+                .preferredLanguage(savedCustomer.getPreferredLanguage())
+                .build();
+
+        backofficeCustomerClient.syncCustomerToBackOffice(backofficeRequest);
 
         return CustomerAccountResponse.builder()
                 .id(savedCustomer.getId())

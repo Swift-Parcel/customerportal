@@ -19,11 +19,16 @@ public class BackOfficeIntegrationService {
     @Value("${backoffice.api.base-url:http://localhost:3500}")
     private String backOfficeBaseUrl;
 
+    @Value("${backoffice.api.base-url:http://localhost:3500}")
+    private String bearerToken;
+
     public String sendCaseToBackOffice(BackOfficeCaseRequest request) {
         String url = backOfficeBaseUrl + "/api/integration/cases";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+
+        headers.setBearerAuth(bearerToken);
 
         HttpEntity<BackOfficeCaseRequest> entity = new HttpEntity<>(request, headers);
 
