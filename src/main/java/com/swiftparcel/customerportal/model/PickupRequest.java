@@ -30,8 +30,6 @@ public class PickupRequest {
     @Column(name = "tracking_number", unique = true, length = 16)
     String trackingNumber;
 
-    @Column(name = "recipient_email")
-    String recipientEmail;
     // ************
 
     @Enumerated(EnumType.STRING)
