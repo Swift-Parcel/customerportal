@@ -21,9 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +39,16 @@ public class PricingService {
     private final QuotesRepository quotesRepository;
     private final PickupRequestRepository pickupRequestRepository;
     private final AddressRepository addressRepository;
+
+    private static final ZoneId OPERATING_ZONE = ZoneId.of("Europe/Budapest");
+
+    private static final DateTimeFormatter UTC_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneOffset.UTC);
+
+    private static final Set<CurrentStatus> SUBMITTABLE = EnumSet.of(
+            CurrentStatus.QUOTED,
+            CurrentStatus.CONFIRMED,
+            CurrentStatus.SUBMITTED_TO_BACKOFFICE);
 
     public List<Quote> getQuoteHistory(Long customerId) {
         Instant since = Instant.now().minus(30, ChronoUnit.DAYS);
