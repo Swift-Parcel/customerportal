@@ -37,8 +37,8 @@ public class ComplaintCase {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    @Column(nullable = false)
-    private String channel; // for example "PORTAL"
+    @Column(name = "title", nullable = false)
+    private String title;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -73,9 +73,6 @@ public class ComplaintCase {
         this.createdAt = now;
         this.updatedAt = now;
 
-        if (this.channel == null) {
-            this.channel = "PORTAL";
-        }
         if (this.status == null) {
             this.status = CaseStatus.OPEN;
         }
