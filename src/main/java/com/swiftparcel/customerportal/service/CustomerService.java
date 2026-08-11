@@ -1,5 +1,7 @@
 package com.swiftparcel.customerportal.service;
 
+import com.swiftparcel.customerportal.dto.backOfficeForCustomer.BackofficeCustomerClient;
+import com.swiftparcel.customerportal.dto.backOfficeForCustomer.BackofficeCustomerRequest;
 import com.swiftparcel.customerportal.dto.AddressDTO;
 import com.swiftparcel.customerportal.dto.CustomerAccountRequest;
 import com.swiftparcel.customerportal.dto.CustomerAccountResponse;
@@ -19,6 +21,7 @@ import java.util.Optional;
 public class CustomerService {
     private final CustomerRepository customerRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BackofficeCustomerClient backofficeCustomerClient;
 
 
     public CustomerAccountResponse createCustomer(CustomerAccountRequest customerAccountRequest) {
@@ -26,14 +29,25 @@ public class CustomerService {
             return null;
         }
 
+        Address addressEntity = null;
+        if (customerAccountRequest.getDefaultAddress() != null) {
+            AddressDTO addressDTO = customerAccountRequest.getDefaultAddress();
+            addressEntity = Address.builder()
+                    .city(addressDTO.getCity())
+                    .postalCode(addressDTO.getPostalCode())
+                    .countryCode(addressDTO.getCountryCode())
+                    .build();
+        }
+
         Customer customer = Customer.builder()
                 .email(customerAccountRequest.getEmail())
                 .fullName(customerAccountRequest.getFullName())
                 .phoneNumber(customerAccountRequest.getPhoneNumber())
                 .passwordHash(bCryptPasswordEncoder.encode(customerAccountRequest.getPassword()))
+                .preferredLanguage(customerAccountRequest.getPreferredLanguage())
+                .defaultAddress(addressEntity)
                 .build();
 
-        // Initialize default notification preferences
         NotificationPreference defaultPreferences = NotificationPreference.builder()
                 .customer(customer)
                 .parcelStatus(true)
@@ -47,13 +61,31 @@ public class CustomerService {
 
         Customer savedCustomer = customerRepository.save(customer);
 
+        BackofficeCustomerRequest backofficeRequest = BackofficeCustomerRequest.builder()
+                .email(savedCustomer.getEmail())
+                .fullName(savedCustomer.getFullName())
+                .phoneNumber(savedCustomer.getPhoneNumber())
+                .preferredLanguage(savedCustomer.getPreferredLanguage())
+                .build();
+
+        backofficeCustomerClient.syncCustomerToBackOffice(backofficeRequest);
+
         return CustomerAccountResponse.builder()
                 .id(savedCustomer.getId())
                 .email(savedCustomer.getEmail())
                 .fullName(savedCustomer.getFullName())
                 .phoneNumber(savedCustomer.getPhoneNumber())
+                .preferredLanguage(savedCustomer.getPreferredLanguage())
+                .defaultAddress(AddressDTO.builder()
+                        .id(savedCustomer.getDefaultAddress().getId())
+                        .city(savedCustomer.getDefaultAddress().getCity())
+                        .postalCode(savedCustomer.getDefaultAddress().getPostalCode())
+                        .countryCode(savedCustomer.getDefaultAddress().getCountryCode())
+                        .build())
                 .build();
     }
+
+    //  ***************************
 
     public Optional<CustomerDTO> getCustomerById(Long id) {
         return customerRepository.findById(id).map(this::mapToDTO);
