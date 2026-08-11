@@ -18,15 +18,15 @@ public class BackofficeCustomerClient {
     @Value("${backoffice.api.base-url:http://localhost:3500}")
     private String backofficeBaseUrl;
 
-    @Value("${backoffice.api.bearer-token:secret}")
-    private String bearerToken;
+    @Value("${app.backoffice.api-key}")
+    private String apiKey;
 
     public void syncCustomerToBackOffice(BackofficeCustomerRequest request) {
         String url = backofficeBaseUrl + "/api/integration/customers";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearerToken);
+        headers.set("x-api-key", apiKey);
 
         HttpEntity<BackofficeCustomerRequest> entity = new HttpEntity<>(request, headers);
 

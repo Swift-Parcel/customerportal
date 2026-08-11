@@ -28,4 +28,10 @@ public class Address {
 
     @Column(name = "country_code", nullable = false, length = 2)
     private String countryCode;
+
+    @Column
+    private String street;
+
+    @Column(name = "street_number")
+    private String streetNumber;
 }

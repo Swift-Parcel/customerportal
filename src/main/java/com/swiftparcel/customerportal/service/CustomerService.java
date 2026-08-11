@@ -1,5 +1,6 @@
 package com.swiftparcel.customerportal.service;
 
+import com.swiftparcel.customerportal.dto.backOfficeForCustomer.BackofficeAddressDTO;
 import com.swiftparcel.customerportal.dto.backOfficeForCustomer.BackofficeCustomerClient;
 import com.swiftparcel.customerportal.dto.backOfficeForCustomer.BackofficeCustomerRequest;
 import com.swiftparcel.customerportal.dto.AddressDTO;
@@ -13,6 +14,7 @@ import com.swiftparcel.customerportal.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -24,6 +26,7 @@ public class CustomerService {
     private final BackofficeCustomerClient backofficeCustomerClient;
 
 
+    @Transactional
     public CustomerAccountResponse createCustomer(CustomerAccountRequest customerAccountRequest) {
         if (customerAccountRequest == null) {
             return null;
@@ -36,6 +39,8 @@ public class CustomerService {
                     .city(addressDTO.getCity())
                     .postalCode(addressDTO.getPostalCode())
                     .countryCode(addressDTO.getCountryCode())
+                    .street(addressDTO.getStreet())
+                    .streetNumber(addressDTO.getStreetNumber())
                     .build();
         }
 
@@ -63,8 +68,15 @@ public class CustomerService {
 
         BackofficeCustomerRequest backofficeRequest = BackofficeCustomerRequest.builder()
                 .email(savedCustomer.getEmail())
-                .fullName(savedCustomer.getFullName())
-                .phoneNumber(savedCustomer.getPhoneNumber())
+                .name(savedCustomer.getFullName())
+                .phone(savedCustomer.getPhoneNumber())
+                .address(BackofficeAddressDTO.builder()
+                        .city(savedCustomer.getDefaultAddress().getCity())
+                        .countryCode(savedCustomer.getDefaultAddress().getCountryCode())
+                        .postalCode(savedCustomer.getDefaultAddress().getPostalCode())
+                        .street(savedCustomer.getDefaultAddress().getStreet())
+                        .streetNumber(savedCustomer.getDefaultAddress().getStreetNumber())
+                        .build())
                 .preferredLanguage(savedCustomer.getPreferredLanguage())
                 .build();
 
@@ -81,6 +93,8 @@ public class CustomerService {
                         .city(savedCustomer.getDefaultAddress().getCity())
                         .postalCode(savedCustomer.getDefaultAddress().getPostalCode())
                         .countryCode(savedCustomer.getDefaultAddress().getCountryCode())
+                        .street(savedCustomer.getDefaultAddress().getStreet())
+                        .streetNumber(savedCustomer.getDefaultAddress().getStreetNumber())
                         .build())
                 .build();
     }
@@ -127,6 +141,8 @@ public class CustomerService {
                 .city(address.getCity())
                 .postalCode(address.getPostalCode())
                 .countryCode(address.getCountryCode())
+                .street(address.getStreet())
+                .streetNumber(address.getStreetNumber())
                 .build();
     }
 
@@ -163,6 +179,12 @@ public class CustomerService {
         }
         if (addressDto.getCountryCode() != null) {
             address.setCountryCode(addressDto.getCountryCode());
+        }
+        if (addressDto.getStreet() != null) {
+            address.setStreet(addressDto.getStreet());
+        }
+        if (addressDto.getStreetNumber() != null) {
+            address.setStreetNumber(addressDto.getStreetNumber());
         }
     }
 
