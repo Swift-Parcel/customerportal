@@ -6,7 +6,8 @@ import lombok.Builder;
 @Builder
 public record BackofficeCustomerRequest(
         @JsonProperty("email") String email,
-        @JsonProperty("full_name") String fullName,
-        @JsonProperty("phone_number") String phoneNumber,
+        @JsonProperty("name") String name,
+        @JsonProperty("phone") String phone,
+        @JsonProperty("address") BackofficeAddressDTO address,
         @JsonProperty("preferred_language") String preferredLanguage
 ) {}
