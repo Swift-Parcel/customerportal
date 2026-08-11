@@ -13,5 +13,7 @@ public class CustomerAccountResponse {
     String email;
     String fullName;
     String phoneNumber;
+    String preferredLanguage;
+    AddressDTO defaultAddress;
 
 }

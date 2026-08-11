@@ -24,7 +24,7 @@ public class ParcelService {
 
     private final RestTemplate restTemplate;
     private final ParcelRepository parcelRepository;
-
+  
     @Value("${app.backoffice.base-url}")
     private String backendUrl;
 
