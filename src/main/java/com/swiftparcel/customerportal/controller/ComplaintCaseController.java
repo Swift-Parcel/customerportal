@@ -1,10 +1,8 @@
 package com.swiftparcel.customerportal.controller;
 
-import com.swiftparcel.customerportal.dto.CaseResponse;
-import com.swiftparcel.customerportal.dto.CaseSummaryResponse;
-import com.swiftparcel.customerportal.dto.CreateCaseRequest;
-import com.swiftparcel.customerportal.dto.SubmitFeedbackRequest;
+import com.swiftparcel.customerportal.dto.*;
 import com.swiftparcel.customerportal.service.ComplaintCaseService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/customerportal/cases")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class ComplaintCaseController {
 
     private final ComplaintCaseService complaintCaseService;
@@ -47,5 +46,24 @@ public class ComplaintCaseController {
 
         complaintCaseService.submitFeedback(caseNumber, request, userDetails.getUsername());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{caseNumber}")
+    public ResponseEntity<CaseDetailResponse> getCaseDetail(
+            @PathVariable String caseNumber,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        CaseDetailResponse response = complaintCaseService.getCaseDetail(caseNumber, userDetails.getUsername());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{caseNumber}/notes")
+    public ResponseEntity<Void> addCaseNote(
+            @PathVariable String caseNumber,
+            @Valid @RequestBody AddCaseNoteRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        complaintCaseService.addCaseNote(caseNumber, request.getMessage(), userDetails.getUsername());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

@@ -1,11 +1,8 @@
 package com.swiftparcel.customerportal.service;
 
-import com.swiftparcel.customerportal.dto.CaseChangeDTO;
-import com.swiftparcel.customerportal.dto.CaseResponse;
-import com.swiftparcel.customerportal.dto.CaseSummaryResponse;
-import com.swiftparcel.customerportal.dto.CreateCaseRequest;
-import com.swiftparcel.customerportal.dto.SubmitFeedbackRequest;
+import com.swiftparcel.customerportal.dto.*;
 import com.swiftparcel.customerportal.dto.integrationComplainCase.BackOfficeCaseRequest;
+import com.swiftparcel.customerportal.dto.integrationComplainCase.BackOfficeCaseStatusResponse;
 import com.swiftparcel.customerportal.model.ComplaintCase;
 import com.swiftparcel.customerportal.model.Customer;
 import com.swiftparcel.customerportal.model.enums.CaseStatus;
@@ -134,5 +131,46 @@ public class ComplaintCaseService {
                     }
                     return updatedCase;
                 });
+    }
+
+    @Transactional(readOnly = true)
+    public CaseDetailResponse getCaseDetail(String caseNumber, String customerEmail) {
+        ComplaintCase complaintCase = caseRepository.findByCaseNumber(caseNumber)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Case not found: " + caseNumber));
+
+        if (!complaintCase.getCustomer().getEmail().equalsIgnoreCase(customerEmail)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this case.");
+        }
+
+        BackOfficeCaseStatusResponse backOfficeStatus = backOfficeService.getCaseStatus(caseNumber);
+
+        return CaseDetailResponse.builder()
+                .caseNumber(complaintCase.getCaseNumber())
+                .caseType(complaintCase.getCaseType())
+                .trackingNumbers(complaintCase.getTrackingNumbers())
+                .description(complaintCase.getDescription())
+                .status(backOfficeStatus.getCaseStatus())
+                .resolution(backOfficeStatus.getResolution())
+                .notes(backOfficeStatus.getNotes().stream()
+                        .map(n -> CaseNoteResponse.builder()
+                                .timestamp(n.getTimestamp())
+                                .note(n.getNote())
+                                .build())
+                        .toList())
+                .createdAt(complaintCase.getCreatedAt())
+                .updatedAt(complaintCase.getUpdatedAt())
+                .build();
+    }
+
+    @Transactional
+    public void addCaseNote(String caseNumber, String message, String customerEmail) {
+        ComplaintCase complaintCase = caseRepository.findByCaseNumber(caseNumber)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Case not found: " + caseNumber));
+
+        if (!complaintCase.getCustomer().getEmail().equalsIgnoreCase(customerEmail)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not have permission to access this case.");
+        }
+
+        backOfficeService.addCaseNote(caseNumber, customerEmail, message);
     }
 }
