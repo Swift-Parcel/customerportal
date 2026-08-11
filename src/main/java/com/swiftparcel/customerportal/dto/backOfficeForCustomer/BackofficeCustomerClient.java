@@ -2,13 +2,14 @@ package com.swiftparcel.customerportal.dto.backOfficeForCustomer;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class BackofficeCustomerClient {
@@ -23,6 +24,8 @@ public class BackofficeCustomerClient {
 
     public void syncCustomerToBackOffice(BackofficeCustomerRequest request) {
         String url = backofficeBaseUrl + "/api/integration/customers";
+        log.info("[DEBUG_LOG] Attempting to sync customer to Back-Office. URL: {}", url);
+        log.info("[DEBUG_LOG] Request data: {}", request);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -32,7 +35,9 @@ public class BackofficeCustomerClient {
 
         try {
             restTemplate.postForObject(url, entity, BackofficeCustomerResponse.class);
+            log.info("[DEBUG_LOG] Successfully synced customer to Back-Office");
         } catch (Exception e) {
+            log.error("[DEBUG_LOG] Failed to sync customer to Back-Office. URL: {}, Error: {}", url, e.getMessage());
             throw new RuntimeException("Failed to sync customer to Back-Office: " + e.getMessage(), e);
         }
     }
