@@ -5,6 +5,7 @@ import com.swiftparcel.customerportal.dto.CaseSummaryResponse;
 import com.swiftparcel.customerportal.dto.CreateCaseRequest;
 import com.swiftparcel.customerportal.dto.SubmitFeedbackRequest;
 import com.swiftparcel.customerportal.service.ComplaintCaseService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/customerportal/cases")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class ComplaintCaseController {
 
     private final ComplaintCaseService complaintCaseService;
