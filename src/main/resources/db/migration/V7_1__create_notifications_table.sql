@@ -1,0 +1,8 @@
+CREATE TABLE notifications (
+    id BIGSERIAL PRIMARY KEY,
+    customer_id BIGINT NOT NULL REFERENCES customer (id) ON DELETE CASCADE,
+    event_type VARCHAR(50) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    message TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

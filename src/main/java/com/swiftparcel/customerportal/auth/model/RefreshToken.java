@@ -1,4 +1,4 @@
-package com.swiftparcel.customerportal.auth.domain;
+package com.swiftparcel.customerportal.auth.model;
 
 import com.swiftparcel.customerportal.model.Customer;
 import jakarta.persistence.*;

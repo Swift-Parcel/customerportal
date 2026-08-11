@@ -1,7 +1,6 @@
 package com.swiftparcel.customerportal.exception;
 
-import lombok.Builder;
-import lombok.Data;
+import com.swiftparcel.customerportal.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -11,14 +10,18 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.stream.Collectors;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         String errorMessage = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -29,41 +32,52 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Malformed JSON request or type mismatch: " + ex.getMostSpecificCause().getMessage());
+    public ResponseEntity<ApiResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Invalid data");
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
-        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
-    }
-
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
-        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Authentication failed: " + ex.getMessage());
+    @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
+    public ResponseEntity<ApiResponse> handleUnauthorizedExceptions(AuthenticationException ex) {
+        String message = (ex instanceof BadCredentialsException) ? ex.getMessage() : "Authentication failed: " + ex.getMessage();
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, message);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+    public ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException ex) {
         return buildErrorResponse(HttpStatus.FORBIDDEN, "Access denied: " + ex.getMessage());
     }
 
+    @ExceptionHandler({NoHandlerFoundException.class, NoSuchElementException.class})
+    public ResponseEntity<ApiResponse> handleNotFoundExceptions(Exception ex) {
+        String message = (ex instanceof NoHandlerFoundException) ? "Resource not found: " + ex.getMessage() : ex.getMessage();
+        return buildErrorResponse(HttpStatus.NOT_FOUND, message);
+    }
+
+    @ExceptionHandler({IllegalStateException.class, IllegalArgumentException.class})
+    public ResponseEntity<ApiResponse> handleBadRequestExceptions(RuntimeException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(HttpStatusCodeException.class)
+    public ResponseEntity<ApiResponse> handleHttpStatusCodeException(HttpStatusCodeException ex) {
+        return buildErrorResponse((HttpStatus) ex.getStatusCode(), "External service error: " + ex.getResponseBodyAsString());
+    }
+
+    @ExceptionHandler(RestClientException.class)
+    public ResponseEntity<ApiResponse> handleRestClientException(RestClientException ex) {
+        return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, "External service unavailable: " + ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
+    public ResponseEntity<ApiResponse> handleGeneralException(Exception ex) {
         System.err.println("Unexpected error: " + ex.getMessage());
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
     }
 
-    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message) {
-        ErrorResponse error = ErrorResponse.builder()
+    private ResponseEntity<ApiResponse> buildErrorResponse(HttpStatus status, String message) {
+        ApiResponse error = ApiResponse.builder()
                 .message(message)
                 .build();
         return new ResponseEntity<>(error, status);
-    }
-
-    @Data
-    @Builder
-    public static class ErrorResponse {
-        private String message;
     }
 }
