@@ -45,7 +45,7 @@ public class CustomerService {
         }
 
         Customer customer = Customer.builder()
-                .email(customerAccountRequest.getEmail())
+                .email(customerAccountRequest.getEmail().toLowerCase())
                 .fullName(customerAccountRequest.getFullName())
                 .phoneNumber(customerAccountRequest.getPhoneNumber())
                 .passwordHash(bCryptPasswordEncoder.encode(customerAccountRequest.getPassword()))
