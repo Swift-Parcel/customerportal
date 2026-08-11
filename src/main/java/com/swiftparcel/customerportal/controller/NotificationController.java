@@ -4,8 +4,10 @@ import com.swiftparcel.customerportal.dto.ApiResponse;
 
 import com.swiftparcel.customerportal.dto.DeliveryChangeDTO;
 import com.swiftparcel.customerportal.dto.ParcelStatusWebhookDTO;
+import com.swiftparcel.customerportal.model.Customer;
 import com.swiftparcel.customerportal.model.NotificationPreference;
 import com.swiftparcel.customerportal.model.enums.NotificationEventType;
+import com.swiftparcel.customerportal.repository.CustomerRepository;
 import com.swiftparcel.customerportal.service.DeliveryService;
 import com.swiftparcel.customerportal.service.NotificationService;
 import com.swiftparcel.customerportal.service.ParcelService;
@@ -26,6 +28,7 @@ public class NotificationController {
     private final NotificationService notificationService;
     private final DeliveryService deliveryService;
     private final ParcelService parcelService;
+    private final CustomerRepository customerRepository;
 
     @PatchMapping("/api/customerportal/customer/{customerId}/notification-preference")
     @SecurityRequirement(name = "bearerAuth")
@@ -65,11 +68,21 @@ public class NotificationController {
 
         parcelService.updateParcelStatus(dto)
                 .ifPresent(parcel -> {
+                    String customerEmail = customerRepository.findById(parcel.getCustomerId())
+                            .map(Customer::getEmail)
+                            .orElse(null);
+
+                    if (customerEmail == null) {
+                        log.warn("No customer found for parcel {}. Skipping notification.",
+                                parcel.getTrackingNumber());
+                        return;
+                    }
+
                     String message = "Your parcel " + parcel.getTrackingNumber()
                             + " status changed to " + parcel.getStatus();
 
                     notificationService.processNotification(
-                            parcel.getCustomer().getEmail(),
+                            customerEmail,
                             NotificationEventType.PARCEL_STATUS,
                             message
                     );

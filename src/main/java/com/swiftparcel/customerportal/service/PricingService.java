@@ -214,7 +214,7 @@ public class PricingService {
                 .orElseGet(Parcel::new);
 
         parcel.setPickupRequestId(pickupRequest.getId());
-        parcel.setCustomer(pickupRequest.getCustomerId());
+        parcel.setCustomerId(pickupRequest.getCustomerId());
         parcel.setTrackingNumber(response.getTrackingNumber());
         parcel.setStatus(backofficeParcelService.toParcelStatus(response.getParcelStatus()));
         parcelRepository.save(parcel);

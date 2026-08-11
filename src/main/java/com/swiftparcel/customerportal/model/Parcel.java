@@ -23,7 +23,7 @@ public class Parcel {
     Long id;
 
     @Column(name ="customer_id")
-    Long customer;
+    Long customerId;
 
     @Column(name = "tracking_number", nullable = false, unique = true, length = 11)
     String trackingNumber;
