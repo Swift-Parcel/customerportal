@@ -27,6 +27,12 @@ public class PickupRequest {
     @Column(name = "customer_id", nullable = false)
     Long customerId;
 
+    // ********** I added two fields for ComplaintCase: trackingNumber and recipientEmail
+    @Column(name = "tracking_number", unique = true, length = 16)
+    String trackingNumber;
+
+    // ************
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 24)
     @Builder.Default

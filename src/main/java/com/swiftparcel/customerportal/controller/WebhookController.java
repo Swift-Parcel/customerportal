@@ -1,8 +1,10 @@
 package com.swiftparcel.customerportal.controller;
 
 import com.swiftparcel.customerportal.dto.ApiResponse;
+import com.swiftparcel.customerportal.dto.CaseChangeDTO;
 import com.swiftparcel.customerportal.dto.DeliveryChangeDTO;
 import com.swiftparcel.customerportal.model.enums.NotificationEventType;
+import com.swiftparcel.customerportal.service.ComplaintCaseService;
 import com.swiftparcel.customerportal.service.DeliveryService;
 import com.swiftparcel.customerportal.service.NotificationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -23,6 +25,7 @@ public class WebhookController {
 
     private final DeliveryService deliveryService;
     private final NotificationService notificationService;
+    private final ComplaintCaseService complaintCaseService;
 
     @PostMapping("/cases/delivery-change")
     @SecurityRequirement(name = "apiKey")
@@ -40,6 +43,27 @@ public class WebhookController {
                     notificationService.processNotification(
                             request.getCustomer().getEmail(),
                             NotificationEventType.DELIVERY_CHANGE,
+                            message
+                    );
+                });
+
+        return ResponseEntity.ok(new ApiResponse("Webhook received successfully"));
+    }
+
+
+    @PostMapping("/cases/status")
+    @SecurityRequirement(name = "apiKey")
+    public ResponseEntity<ApiResponse> caseChangeWebhook(@RequestBody CaseChangeDTO caseChangeDTO) {
+        log.info("Received case status change webhook for case: {}", caseChangeDTO.getCaseNumber());
+
+        complaintCaseService.updateCaseStatus(caseChangeDTO)
+                .ifPresent(updatedCase -> {
+                    String message = "Your case " + updatedCase.getCaseNumber()
+                            + " status changed to " + updatedCase.getStatus();
+
+                    notificationService.processNotification(
+                            updatedCase.getCustomer().getEmail(),
+                            NotificationEventType.CASE_STATUS,
                             message
                     );
                 });
