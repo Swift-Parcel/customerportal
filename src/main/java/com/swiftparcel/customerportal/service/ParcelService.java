@@ -3,9 +3,6 @@ package com.swiftparcel.customerportal.service;
 
 import com.swiftparcel.customerportal.dto.*;
 import com.swiftparcel.customerportal.model.Parcel;
-import com.swiftparcel.customerportal.model.PickupRequest;
-import com.swiftparcel.customerportal.model.Quote;
-import com.swiftparcel.customerportal.model.enums.ParcelStatus;
 import com.swiftparcel.customerportal.repository.ParcelRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,12 +44,10 @@ public class ParcelService {
             return Collections.emptyList();
         }
 
-        List<ParcelDTO> parcels = response.getParcels().stream()
+        return response.getParcels().stream()
                 .skip(skip != null && skip > 0 ? skip : 0)
                 .limit(limit != null && limit > 0 ? limit : Long.MAX_VALUE)
                 .collect(Collectors.toList());
-
-        return parcels;
     }
 
     public ParcelDetailResponse getParcelDetails(String trackingNumber) {
@@ -101,17 +96,6 @@ public class ParcelService {
 
         return new ConfirmDeliveryResponse("Delivery confirmation received");
     }
-
-    public ApiResponse changeDelivery(String trackingNumber, ChangeDeliveryDTO changeDeliveryDTO) {
-        validate(trackingNumber);
-
-        String url = UriComponentsBuilder.fromUriString(backendUrl)
-                .path("/api/integration/parcels/{trackingNumber}/delivery-change")
-                .buildAndExpand(trackingNumber)
-                .toUriString();
-
-        return restTemplate.patchForObject(url, changeDeliveryDTO, ApiResponse.class);
-    }
   
   @Transactional
     public Optional<Parcel> updateParcelStatus(ParcelStatusWebhookDTO dto) {
@@ -137,14 +121,6 @@ public class ParcelService {
 
         parcel.setStatus(dto.getParcelStatus());
         return Optional.of(parcelRepository.save(parcel));
-    }
-
-    @Transactional
-    public Optional<Parcel> confirmParcel (PickupRequest pickupRequest, Quote quote){
-
-
-
-        return null;
     }
 
 }
