@@ -22,7 +22,7 @@ public class ParcelService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${external.api.backoffice-url}")
+    @Value("${backoffice.api.base-url:http://localhost:3500}")
     private String backendUrl;
 
     public ParcelService(RestTemplate restTemplate) {
