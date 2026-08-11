@@ -4,6 +4,7 @@ import com.swiftparcel.customerportal.dto.ApiResponse;
 import com.swiftparcel.customerportal.dto.CaseChangeDTO;
 import com.swiftparcel.customerportal.dto.DeliveryChangeDTO;
 import com.swiftparcel.customerportal.model.enums.NotificationEventType;
+import com.swiftparcel.customerportal.service.ComplaintCaseService;
 import com.swiftparcel.customerportal.service.DeliveryService;
 import com.swiftparcel.customerportal.service.NotificationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -23,6 +24,7 @@ public class WebhookController {
 
     private final DeliveryService deliveryService;
     private final NotificationService notificationService;
+    private final ComplaintCaseService complaintCaseService;
 
     @PostMapping("/cases/delivery-change")
     @SecurityRequirement(name = "apiKey")
@@ -52,12 +54,17 @@ public class WebhookController {
     public ResponseEntity<ApiResponse> caseChangeWebhook(@RequestBody CaseChangeDTO caseChangeDTO) {
         log.info("Received case status change webhook for case: {}", caseChangeDTO.getCaseNumber());
 
-        // todo Update the case table and extract the Customer from that table
-        notificationService.processNotification(
-                "custumerEmail",
-                NotificationEventType.DELIVERY_CHANGE,
-                "message"
-        );
+        complaintCaseService.updateCaseStatus(caseChangeDTO)
+                .ifPresent(updatedCase -> {
+                    String message = "Your case " + updatedCase.getCaseNumber()
+                            + " status changed to " + updatedCase.getStatus();
+
+                    notificationService.processNotification(
+                            updatedCase.getCustomer().getEmail(),
+                            NotificationEventType.CASE_STATUS,
+                            message
+                    );
+                });
 
         return ResponseEntity.ok(new ApiResponse("Webhook received successfully"));
     }
