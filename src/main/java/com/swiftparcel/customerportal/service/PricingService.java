@@ -192,7 +192,7 @@ public class PricingService {
                 throw new IllegalStateException(
                         "Quote " + quoteId + " expired at " + quote.getQuoteExpiresAt());
             }
-            // Pago simulado: aceptar el quote lo congela como el precio del pickup
+
             pickupRequest.setAcceptedQuoteId(quote.getId());
             pickupRequest.setPaidAt(Instant.now());
             pickupRequest.setCurrentStatus(CurrentStatus.CONFIRMED);

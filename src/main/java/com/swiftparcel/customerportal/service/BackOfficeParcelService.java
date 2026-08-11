@@ -11,10 +11,16 @@ import com.swiftparcel.customerportal.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClientException;
+import java.util.Collections;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,6 +28,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Map;
 
 
@@ -30,8 +37,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BackOfficeParcelService {
 
-    @Value("${app.backoffice.base-url}")
+    @Value("${app.backoffice.base-url:http://localhost:3500}")
     private String backendUrl;
+
+    @Value("${app.backoffice.api-key:SwiftParcel_Java_Integration_Shared_Secret_2026!}")
+    private String apiKey;
 
     private static final ZoneId DEFAULT_PICKUP_ZONE = ZoneId.of("Europe/Budapest");
 
@@ -50,10 +60,17 @@ public class BackOfficeParcelService {
                 .path("/api/integration/parcels")
                 .toUriString();
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("x-api-key", apiKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+        HttpEntity<BackOfficeParcelDTO> entity = new HttpEntity<>(request, headers);
+
         ConfirmQuoteResponse.BackofficeResponse response;
         try {
             response = restTemplate.postForObject(
-                    url, request, ConfirmQuoteResponse.BackofficeResponse.class);
+                    url, entity, ConfirmQuoteResponse.BackofficeResponse.class);
         } catch (RestClientException e) {
             log.error("Back-office unreachable submitting pickup request {}", pickupRequest.getId(), e);
             throw new IllegalStateException(
