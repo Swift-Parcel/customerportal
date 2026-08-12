@@ -36,17 +36,8 @@ public class BackofficeCustomerClient {
 
         try {
             restTemplate.postForObject(url, entity, BackofficeCustomerResponse.class);
-            log.info("[DEBUG_LOG] Successfully synced customer to Back-Office");
         } catch (Exception e) {
-            String errorMessage = e.getMessage();
-            if (errorMessage == null && e.getCause() != null) {
-                errorMessage = e.getCause().getMessage();
-            }
-            if (errorMessage == null) {
-                errorMessage = e.getClass().getSimpleName();
-            }
-            log.error("[DEBUG_LOG] Failed to sync customer to Back-Office. URL: {}, Error: {}", url, errorMessage);
-            throw new RuntimeException("Failed to sync customer to Back-Office at " + url + ": " + errorMessage, e);
+            throw new RuntimeException("Failed to sync customer to Back-Office: " + e);
         }
     }
 }
