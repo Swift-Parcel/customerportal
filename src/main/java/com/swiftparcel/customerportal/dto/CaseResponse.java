@@ -26,7 +26,7 @@ public class CaseResponse {
 
     private String description;
 
-    private String channel;
+//    private String channel;
 
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
