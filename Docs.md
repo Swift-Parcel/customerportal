@@ -117,10 +117,7 @@ Applied automatically by Flyway on a clean database.
 | anna.kovacs@example.com | Anna Kovács | hu |
 | marek.wojcik@example.pl | Marek Wójcik | pl |
 
-> Passwords are stored as seeded BCrypt hashes; the plaintext is not committed. For login testing,
-> either use the team's seed credentials or register a fresh account via `POST /api/customerportal/customer`.
-> Seeded pickup requests and quotes exist for these customers (`V4_3`, `V8_2`).
-
+> Passwords for all those users are `Test1234!`
 ### Zone multipliers (`route`)
 | Route Type | Multiplier |
 | :--- | :--- |
