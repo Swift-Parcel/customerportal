@@ -56,6 +56,8 @@ public class WebhookController {
         return ResponseEntity.ok(new ApiResponse("Webhook received successfully"));
     }
 
+    @PostMapping("/parcels/status")
+    @SecurityRequirement(name = "apiKey")
     public ResponseEntity<ApiResponse> parcelStatusWebhook(
             @Valid @RequestBody ParcelStatusWebhookDTO dto) {
         log.info("Received parcel status webhook for tracking number: {}", dto.getTrackingNumber());
