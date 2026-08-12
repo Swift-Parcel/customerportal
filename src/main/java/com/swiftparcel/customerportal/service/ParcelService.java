@@ -73,7 +73,7 @@ public class ParcelService {
         validate(trackingNumber);
 
         String url = UriComponentsBuilder.fromUriString(backendUrl)
-                .path("/api/integration/parcels/{trackingNumber}/schedule")
+                .path("/api/integration/parcels/{trackingNumber}/delivery-estimate")
                 .buildAndExpand(trackingNumber)
                 .toUriString();
 
