@@ -23,7 +23,10 @@ public class NotificationPreference {
     @OneToOne
     @JoinColumn(name = "customer_id", nullable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Customer customer;
+
 
     @Column(name = "parcel_status")
     @JsonProperty("parcel_status")
