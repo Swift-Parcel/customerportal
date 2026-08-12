@@ -1,63 +1,56 @@
 package com.swiftparcel.customerportal.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.List;
 
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ParcelDetailResponse {
 
-    @JsonProperty("tracking_history")
-    private List<TrackingEvent> tracking_history;
-    private Location location;
+    String parcelStatus;
+    Location location;
+    List<TrackingEvent> trackingHistory;
 
-}
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class Location {
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-class TrackingEvent {
+        String facility;
+        String city;
+        String countryCode;
+        String postalCode;
+        Double lat;
+        Double lon;
+    }
 
-    private LocalDateTime timeStamp;
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    public static class TrackingEvent {
 
-    private enum parcel_status {}
-
-    ;
-    private String description;
-}
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-class Location {
-    @JsonProperty("postal_code")
-    private String postal_code;
-    private String city;
-    @JsonProperty("country_code")
-    private String country_code;
-    private Double lat;
-    private Double lon;
-}
-
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-class Party {
-    private String fullName;
-    private String email;
+        Instant timestamp;
+        String parcelStatus;
+        String description;
+        Location location;
+    }
 }

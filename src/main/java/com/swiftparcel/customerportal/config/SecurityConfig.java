@@ -41,6 +41,7 @@ public class SecurityConfig {
                                         "/swagger-ui/**",
                                         "/swagger-ui-custom.html",
                                         "/api-docs/**",
+                                        "/api/customerportal/parcel/{trackingNumber}",
                                         "/api/customerportal/auth/login",
                                         "/api/customerportal/auth/refresh",
                                         "/api/customerportal/error")

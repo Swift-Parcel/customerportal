@@ -55,7 +55,6 @@ public class ComplaintCaseService {
                 .trackingNumbers(request.getTrackingNumbers())
                 .caseType(request.getCaseType())
                 .description(request.getDescription())
-                .channel("PORTAL")
                 .customer(customer)
                 .build();
 
@@ -67,7 +66,6 @@ public class ComplaintCaseService {
                 .trackingNumbers(savedCase.getTrackingNumbers())
                 .caseType(savedCase.getCaseType())
                 .description(savedCase.getDescription())
-                .channel(savedCase.getChannel())
                 .createdAt(savedCase.getCreatedAt())
                 .build();
 

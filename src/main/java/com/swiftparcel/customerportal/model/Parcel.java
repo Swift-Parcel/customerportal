@@ -22,12 +22,14 @@ public class Parcel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
-    Customer customer;
+    @Column(name ="customer_id")
+    Long customerId;
 
     @Column(name = "tracking_number", nullable = false, unique = true, length = 11)
     String trackingNumber;
+
+    @Column(name = "pickup_request_id")
+    Long pickupRequestId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)

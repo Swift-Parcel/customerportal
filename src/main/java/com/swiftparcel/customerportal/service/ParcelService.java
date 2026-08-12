@@ -1,15 +1,14 @@
 package com.swiftparcel.customerportal.service;
 
-
 import com.swiftparcel.customerportal.dto.*;
 import com.swiftparcel.customerportal.model.Parcel;
-import com.swiftparcel.customerportal.model.PickupRequest;
-import com.swiftparcel.customerportal.model.Quote;
-import com.swiftparcel.customerportal.model.enums.ParcelStatus;
 import com.swiftparcel.customerportal.repository.ParcelRepository;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -31,6 +30,9 @@ public class ParcelService {
     @Value("${app.backoffice.base-url}")
     private String backendUrl;
 
+    @Value("${app.backoffice.api-key}")
+    private String apiKey;
+
     public ParcelService(RestTemplate restTemplate, ParcelRepository parcelRepository) {
         this.restTemplate = restTemplate;
         this.parcelRepository = parcelRepository;
@@ -38,51 +40,45 @@ public class ParcelService {
 
     public List<ParcelDTO> getCustomerParcels(String customerEmail, Integer skip, Integer limit) {
         String url = UriComponentsBuilder.fromUriString(backendUrl)
+                .path("/api/integration/parcels")
                 .queryParam("customerEmail", customerEmail)
                 .toUriString();
 
-        ParcelResponseDTO response = restTemplate.getForObject(url, ParcelResponseDTO.class);
+        ParcelResponseDTO response = restTemplate.exchange(
+                url, HttpMethod.GET, buildEntity(), ParcelResponseDTO.class).getBody();
 
         if (response == null || response.getParcels() == null) {
             return Collections.emptyList();
         }
 
-        List<ParcelDTO> parcels = response.getParcels().stream()
+        return response.getParcels().stream()
                 .skip(skip != null && skip > 0 ? skip : 0)
                 .limit(limit != null && limit > 0 ? limit : Long.MAX_VALUE)
                 .collect(Collectors.toList());
-
-        return parcels;
     }
 
     public ParcelDetailResponse getParcelDetails(String trackingNumber) {
         validate(trackingNumber);
 
         String url = UriComponentsBuilder.fromUriString(backendUrl)
-                .queryParam("trackingNumber", trackingNumber)
+                .path("/api/integration/parcels/{trackingNumber}")
+                .buildAndExpand(trackingNumber)
                 .toUriString();
 
-        return restTemplate.getForObject(
-                url,
-                ParcelDetailResponse.class);
+        return restTemplate.exchange(
+                url, HttpMethod.GET, buildEntity(), ParcelDetailResponse.class).getBody();
     }
 
     public ScheduleResponse getSchedule(String trackingNumber) {
         validate(trackingNumber);
 
-        String url2 = UriComponentsBuilder.fromUriString(backendUrl)
-                .queryParam("trackingNumber", trackingNumber)
+        String url = UriComponentsBuilder.fromUriString(backendUrl)
+                .path("/api/integration/parcels/{trackingNumber}/schedule")
+                .buildAndExpand(trackingNumber)
                 .toUriString();
 
-        return restTemplate.getForObject(
-                url2,
-                ScheduleResponse.class);
-    }
-
-    private void validate(String trackingNumber) {
-        if (trackingNumber == null || !trackingNumber.matches("^SP-[A-Z0-9]{8}$")) {
-            throw new IllegalArgumentException("Invalid tracking number format: " + trackingNumber);
-        }
+        return restTemplate.exchange(
+                url, HttpMethod.GET, buildEntity(), ScheduleResponse.class).getBody();
     }
 
     public ConfirmDeliveryResponse confirmDelivery(String trackingNumber, String customerEmail) {
@@ -95,25 +91,31 @@ public class ParcelService {
 
         Map<String, String> body = Map.of("customer_email", customerEmail);
 
-
-
-        restTemplate.patchForObject(url, body, String.class);
+        restTemplate.exchange(
+                url, HttpMethod.PATCH, new HttpEntity<>(body, buildHeaders()), String.class);
 
         return new ConfirmDeliveryResponse("Delivery confirmation received");
     }
 
-    public ApiResponse changeDelivery(String trackingNumber, ChangeDeliveryDTO changeDeliveryDTO) {
-        validate(trackingNumber);
-
-        String url = UriComponentsBuilder.fromUriString(backendUrl)
-                .path("/api/integration/parcels/{trackingNumber}/delivery-change")
-                .buildAndExpand(trackingNumber)
-                .toUriString();
-
-        return restTemplate.patchForObject(url, changeDeliveryDTO, ApiResponse.class);
+    private HttpHeaders buildHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("x-api-key", apiKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        return headers;
     }
-  
-  @Transactional
+
+    private HttpEntity<Void> buildEntity() {
+        return new HttpEntity<>(buildHeaders());
+    }
+
+    private void validate(String trackingNumber) {
+        if (trackingNumber == null || !trackingNumber.matches("^SP-[A-Z0-9]{8}$")) {
+            throw new IllegalArgumentException("Invalid tracking number format: " + trackingNumber);
+        }
+    }
+
+    @Transactional
     public Optional<Parcel> updateParcelStatus(ParcelStatusWebhookDTO dto) {
 
         Optional<Parcel> parcelOpt = parcelRepository.findByTrackingNumber(dto.getTrackingNumber());
@@ -138,14 +140,4 @@ public class ParcelService {
         parcel.setStatus(dto.getParcelStatus());
         return Optional.of(parcelRepository.save(parcel));
     }
-
-    @Transactional
-    public Optional<Parcel> confirmParcel (PickupRequest pickupRequest, Quote quote){
-
-
-
-        return null;
-    }
-
 }
-    

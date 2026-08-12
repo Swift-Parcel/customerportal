@@ -8,6 +8,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity
@@ -27,12 +28,6 @@ public class PickupRequest {
     @Column(name = "customer_id", nullable = false)
     Long customerId;
 
-    // ********** I added two fields for ComplaintCase: trackingNumber and recipientEmail
-    @Column(name = "tracking_number", unique = true, length = 16)
-    String trackingNumber;
-
-    // ************
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 24)
     @Builder.Default
@@ -41,8 +36,14 @@ public class PickupRequest {
     @Column(name = "sender_address_id", nullable = false)
     Long senderAddress;
 
+    @Column(name = "accepted_quote_id")
+    Long acceptedQuoteId;
+
     @Column(name = "recipient_name", nullable = false, length = 150)
     String recipientName;
+
+    @Column(name = "tracking_number", nullable = false, length = 115)
+    String trackingNumber;
 
     @Column(name = "recipient_address_id", nullable = false)
     Long recipientAddress;
@@ -66,13 +67,22 @@ public class PickupRequest {
     @Column(name = "declared_value_eur",precision = 10, scale = 2)
     BigDecimal declaredValue;
 
-    @Column(name = "quoted_price_eur", precision = 10, scale = 2)
-    BigDecimal quotedPrice;
-
     @Column(name = "preferred_pickup_date", nullable = false)
     LocalDate preferredPickupDate;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    Instant createdAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "preferred_time_slot", nullable = false, length = 16)
     TimeSlot preferredTimeSlot;
+
+    @Column(name = "paid_at")
+    Instant paidAt;
+
+
+    @PrePersist
+    void onCreate() {
+        createdAt = Instant.now();
+    }
 }

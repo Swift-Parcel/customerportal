@@ -3,9 +3,7 @@ package com.swiftparcel.customerportal.controller;
 import com.swiftparcel.customerportal.dto.*;
 import com.swiftparcel.customerportal.service.ParcelService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,14 +43,6 @@ public class ParcelController {
             @PathVariable String trackingNumber,
             @RequestBody ConfirmDeliveryRequest request) {
         return parcelService.confirmDelivery(trackingNumber, request.customerEmail());
-    }
-
-    @PatchMapping("/{trackingNumber}/delivery-change")
-    public ResponseEntity<ApiResponse> changeDelivery(
-            @PathVariable String trackingNumber,
-            @Valid @RequestBody ChangeDeliveryDTO request) {
-        ApiResponse response = parcelService.changeDelivery(trackingNumber, request);
-        return ResponseEntity.ok(response != null ? response : new ApiResponse("Delivery change requested successfully"));
     }
 
 

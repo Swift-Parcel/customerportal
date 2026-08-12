@@ -32,7 +32,7 @@ public class BackOfficeIntegrationService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${backoffice.api.base-url:http://localhost:3500}")
+    @Value("${app.backoffice.base-url}")
     private String backOfficeBaseUrl;
 
     @Value("${app.backoffice.api-key}")
