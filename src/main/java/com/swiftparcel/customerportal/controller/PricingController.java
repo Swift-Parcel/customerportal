@@ -1,5 +1,6 @@
 package com.swiftparcel.customerportal.controller;
 
+import com.swiftparcel.customerportal.dto.ConfirmQuoteResponse;
 import com.swiftparcel.customerportal.model.Customer;
 import com.swiftparcel.customerportal.model.PickupRequest;
 import com.swiftparcel.customerportal.model.Quote;
@@ -31,11 +32,11 @@ public class PricingController {
         return pricingService.createQuoteForPickupRequest(pickupRequestId, customer.getId());
     }
 
-//    @PostMapping("/quotes/confirm-quote/{quoteId}")
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public PickupRequest confirmQuote(@PathVariable Long quoteId,
-//                                      @AuthenticationPrincipal Customer customer) {
-//        System.out.println("customerId from principal: " + customer.getId());
-//        return pricingService.confirmQuote(quoteId, customer.getId());
-//    }
+    @PostMapping("/quotes/confirm-quote/{quoteId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ConfirmQuoteResponse confirmQuote(@PathVariable Long quoteId,
+                                             @AuthenticationPrincipal Customer customer) {
+        System.out.println("customerId from principal: " + customer.getId());
+        return pricingService.confirmQuote(quoteId, customer.getId());
+    }
 }

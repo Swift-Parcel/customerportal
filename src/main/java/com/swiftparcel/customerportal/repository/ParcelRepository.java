@@ -13,4 +13,6 @@ public interface ParcelRepository extends JpaRepository<Parcel, Long> {
     Optional<Parcel> findByTrackingNumber(String trackingNumber);
 
     List<Parcel> findByCustomerId(Long customerId);
+
+    Optional<Parcel> findByPickupRequestId(Long pickupRequestId);
 }

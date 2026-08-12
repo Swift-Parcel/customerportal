@@ -29,9 +29,9 @@ public class Address {
     @Column(name = "country_code", nullable = false, length = 2)
     private String countryCode;
 
-    @Column
+    @Column(nullable = false)
     private String street;
 
-    @Column(name = "street_number")
+    @Column(name = "street_number", nullable = false, length = 20)
     private String streetNumber;
 }
