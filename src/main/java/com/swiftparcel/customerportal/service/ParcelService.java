@@ -1,17 +1,22 @@
 package com.swiftparcel.customerportal.service;
 
 import com.swiftparcel.customerportal.dto.*;
+import com.swiftparcel.customerportal.model.Customer;
 import com.swiftparcel.customerportal.model.Parcel;
+import com.swiftparcel.customerportal.repository.CustomerRepository;
 import com.swiftparcel.customerportal.repository.ParcelRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
@@ -26,6 +31,7 @@ public class ParcelService {
 
     private final RestTemplate restTemplate;
     private final ParcelRepository parcelRepository;
+    private final CustomerRepository customerRepository;
 
     @Value("${app.backoffice.base-url}")
     private String backendUrl;
@@ -33,9 +39,10 @@ public class ParcelService {
     @Value("${app.backoffice.api-key}")
     private String apiKey;
 
-    public ParcelService(RestTemplate restTemplate, ParcelRepository parcelRepository) {
+    public ParcelService(RestTemplate restTemplate, ParcelRepository parcelRepository, CustomerRepository customerRepository) {
         this.restTemplate = restTemplate;
         this.parcelRepository = parcelRepository;
+        this.customerRepository = customerRepository;
     }
 
     public List<ParcelDTO> getCustomerParcels(String customerEmail, Integer skip, Integer limit) {
@@ -44,14 +51,14 @@ public class ParcelService {
                 .queryParam("customerEmail", customerEmail)
                 .toUriString();
 
-        ParcelResponseDTO response = restTemplate.exchange(
-                url, HttpMethod.GET, buildEntity(), ParcelResponseDTO.class).getBody();
+        ParcelDTO[] response = restTemplate.exchange(
+                url, HttpMethod.GET, buildEntity(), ParcelDTO[].class).getBody();
 
-        if (response == null || response.getParcels() == null) {
+        if (response == null) {
             return Collections.emptyList();
         }
 
-        return response.getParcels().stream()
+        return java.util.Arrays.stream(response)
                 .skip(skip != null && skip > 0 ? skip : 0)
                 .limit(limit != null && limit > 0 ? limit : Long.MAX_VALUE)
                 .collect(Collectors.toList());
@@ -65,15 +72,70 @@ public class ParcelService {
                 .buildAndExpand(trackingNumber)
                 .toUriString();
 
-        return restTemplate.exchange(
-                url, HttpMethod.GET, buildEntity(), ParcelDetailResponse.class).getBody();
+        try {
+            return restTemplate.exchange(
+                    url, HttpMethod.GET, buildEntity(), ParcelDetailResponse.class).getBody();
+        } catch (HttpClientErrorException.NotFound e) {
+            log.warn("Parcel {} not found via direct tracking endpoint. Attempting fallback.", trackingNumber);
+            return attemptFallback(trackingNumber);
+        }
+    }
+
+    private ParcelDetailResponse attemptFallback(String trackingNumber) {
+
+        Optional<Parcel> parcelOpt = parcelRepository.findByTrackingNumber(trackingNumber);
+        if (parcelOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "There is no tracking information available for parcel with tracking number " + trackingNumber);
+        }
+
+        Long customerId = parcelOpt.get().getCustomerId();
+        if (customerId == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "There is no tracking information available for parcel with tracking number " + trackingNumber);
+        }
+
+        String customerEmail = customerRepository.findById(customerId)
+                .map(Customer::getEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "There is no tracking information available for parcel with tracking number " + trackingNumber));
+
+        List<ParcelDTO> parcels = getCustomerParcels(customerEmail, 0, Integer.MAX_VALUE);
+
+        return parcels.stream()
+                .filter(p -> trackingNumber.equals(p.getTrackingNumber()))
+                .findFirst()
+                .map(p -> {
+                    ParcelDetailResponse.Location currentLocation = null;
+                    if (p.getRecipient() != null && p.getRecipient().getAddress() != null) {
+                        AddressDTO addr = p.getRecipient().getAddress();
+                        currentLocation = ParcelDetailResponse.Location.builder()
+                                .city(addr.getCity())
+                                .countryCode(addr.getCountryCode())
+                                .postalCode(addr.getPostalCode())
+                                .build();
+                    }
+
+                    return ParcelDetailResponse.builder()
+                            .parcelStatus(p.getStatus())
+                            .location(currentLocation)
+                            .trackingHistory(Collections.singletonList(
+                                    ParcelDetailResponse.TrackingEvent.builder()
+                                            .parcelStatus(p.getStatus())
+                                            .location(currentLocation)
+                                            .build()
+                            ))
+                            .build();
+                })
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "There is no tracking information available for parcel with tracking number " + trackingNumber));
     }
 
     public ScheduleResponse getSchedule(String trackingNumber) {
         validate(trackingNumber);
 
         String url = UriComponentsBuilder.fromUriString(backendUrl)
-                .path("/api/integration/parcels/{trackingNumber}/schedule")
+                .path("/api/integration/parcels/{trackingNumber}/delivery-estimate")
                 .buildAndExpand(trackingNumber)
                 .toUriString();
 
