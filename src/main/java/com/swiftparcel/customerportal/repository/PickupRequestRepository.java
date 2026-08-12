@@ -14,7 +14,9 @@ import java.util.Optional;
 public interface PickupRequestRepository extends JpaRepository<PickupRequest, Long> {
 
     long countByCustomerIdAndCurrentStatusIn(Long customerId, Collection<CurrentStatus> statuses);
-
+    Optional<PickupRequest> findByTrackingNumber(String trackingNumber);
     @Query("select p from PickupRequest p where p.id = :id")
     Optional<PickupRequest> findByIdForUpdate(@Param("id") Long id);
+
 }
+

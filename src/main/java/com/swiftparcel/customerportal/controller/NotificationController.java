@@ -2,15 +2,8 @@ package com.swiftparcel.customerportal.controller;
 
 import com.swiftparcel.customerportal.dto.ApiResponse;
 
-import com.swiftparcel.customerportal.dto.DeliveryChangeDTO;
-import com.swiftparcel.customerportal.dto.ParcelStatusWebhookDTO;
-import com.swiftparcel.customerportal.model.Customer;
 import com.swiftparcel.customerportal.model.NotificationPreference;
-import com.swiftparcel.customerportal.model.enums.NotificationEventType;
-import com.swiftparcel.customerportal.repository.CustomerRepository;
-import com.swiftparcel.customerportal.service.DeliveryService;
 import com.swiftparcel.customerportal.service.NotificationService;
-import com.swiftparcel.customerportal.service.ParcelService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class NotificationController {
 
     private final NotificationService notificationService;
-    private final DeliveryService deliveryService;
-    private final ParcelService parcelService;
-    private final CustomerRepository customerRepository;
 
     @PatchMapping("/api/customerportal/customer/{customerId}/notification-preference")
     @SecurityRequirement(name = "bearerAuth")
@@ -38,56 +28,4 @@ public class NotificationController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Customer not found")));
     }
 
-    @PostMapping("/cases/delivery-change")
-    @SecurityRequirement(name = "apiKey")
-    public ResponseEntity<ApiResponse> deliveryChangeWebhook(@RequestBody DeliveryChangeDTO deliveryChangeDTO) {
-        deliveryService.updateDeliveryChangeRequest(deliveryChangeDTO)
-                .ifPresent(request -> {
-                    String message = "Your Delivery change request for the case: "
-                            + request.getCaseNumber()
-                            + " was "
-                            + request.getStatus();
-
-                    notificationService.processNotification(
-                            request.getCustomer().getEmail(),
-                            NotificationEventType.DELIVERY_CHANGE,
-                            message
-                    );
-                });
-
-        return ResponseEntity.ok(new ApiResponse("Webhook received successfully"));
-    }
-
-
-    @PostMapping("/api/webhooks/parcels/status")
-    @SecurityRequirement(name = "apiKey")
-    public ResponseEntity<ApiResponse> parcelStatusWebhook(
-            @Valid @RequestBody ParcelStatusWebhookDTO dto) {
-
-        log.info("Received parcel status webhook for tracking number: {}", dto.getTrackingNumber());
-
-        parcelService.updateParcelStatus(dto)
-                .ifPresent(parcel -> {
-                    String customerEmail = customerRepository.findById(parcel.getCustomerId())
-                            .map(Customer::getEmail)
-                            .orElse(null);
-
-                    if (customerEmail == null) {
-                        log.warn("No customer found for parcel {}. Skipping notification.",
-                                parcel.getTrackingNumber());
-                        return;
-                    }
-
-                    String message = "Your parcel " + parcel.getTrackingNumber()
-                            + " status changed to " + parcel.getStatus();
-
-                    notificationService.processNotification(
-                            customerEmail,
-                            NotificationEventType.PARCEL_STATUS,
-                            message
-                    );
-                });
-
-        return ResponseEntity.ok(new ApiResponse("Webhook received successfully"));
-    }
 }

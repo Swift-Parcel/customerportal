@@ -10,12 +10,22 @@ import org.hibernate.annotations.processing.Pattern;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CustomerAccountRequest {
 
+
+    @JsonProperty("email")
     String email;
+    @JsonProperty("full_name")
     String fullName;
+    @JsonProperty("phone_number")
     String phoneNumber;
+    @JsonProperty("password")
     String password;
+    @JsonProperty("preferred_language")
+    String preferredLanguage;
+    @JsonProperty("default_address")
+    AddressDTO defaultAddress;
+
+
 
 }
