@@ -27,35 +27,28 @@ public class PickupRequestService {
 
     public String createPickupRequest(PickupRequestDTO pickupRequestDTO, Long customerId) {
         if(pickupRequestDTO == null){
-            return null;
+            throw new IllegalArgumentException("Request body is missing");
         }
 
         Optional<Customer> customerOpt = customerRepository.findById(customerId);
         if (customerOpt.isEmpty()) {
-            return "Customer not found";
+            throw new java.util.NoSuchElementException("Customer not found");
         }
-        Customer customer = customerOpt.get();
 
         if (!customerLimit(customerId)) {
-            return "Customer cannot have more than 5 unconfirmed pickup requests";
+            throw new IllegalStateException("Customer cannot have more than 5 unconfirmed pickup requests");
         }
 
-        Long senderAddressId = pickupRequestDTO.getSenderAddress();
+        if (pickupRequestDTO.getPreferredPickupDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("invalid date in the past");
+        }
 
-        Optional<Address> senderAddressOpt = addressRepository.findById(senderAddressId);
-        Optional<Address> recipientAddressOpt = addressRepository.findById(pickupRequestDTO.getRecipientAddress());
+        Address senderAddress = findOrCreateAddress(pickupRequestDTO.getSenderAddress());
+        Address recipientAddress = findOrCreateAddress(pickupRequestDTO.getRecipientAddress());
 
-        if (senderAddressOpt.isEmpty()) return "Sender address not found";
-        if (recipientAddressOpt.isEmpty()) return "Recipient address not found";
+        validateSameDayRules(pickupRequestDTO, senderAddress, recipientAddress);
 
-        Address senderAddress = senderAddressOpt.get();
-        Address recipientAddress = recipientAddressOpt.get();
-
-        String sameDayError = validateSameDayRules(pickupRequestDTO, senderAddress, recipientAddress);
-        if (sameDayError != null) return sameDayError;
-
-        String expressError = validateExpressLeadTime(pickupRequestDTO);
-        if (expressError != null) return expressError;
+        validateExpressLeadTime(pickupRequestDTO);
 
         PickupRequest pickupRequest = PickupRequest.builder()
                 .preferredPickupDate(pickupRequestDTO.getPreferredPickupDate())
@@ -65,10 +58,10 @@ public class PickupRequestService {
                 .parcelWeight(pickupRequestDTO.getParcelWeight())
                 .parcelWidth(pickupRequestDTO.getParcelWidth())
                 .preferredTimeSlot(pickupRequestDTO.getPreferredTimeSlot())
-                .recipientAddress(pickupRequestDTO.getRecipientAddress())
+                .recipientAddress(recipientAddress.getId())
                 .recipientName(pickupRequestDTO.getRecipientName())
                 .customerId(customerId)
-                .senderAddress(senderAddressId)
+                .senderAddress(senderAddress.getId())
                 .serviceType(pickupRequestDTO.getServiceType())
                 .currentStatus(CurrentStatus.DRAFT)
                 .build();
@@ -76,6 +69,24 @@ public class PickupRequestService {
         pickupRequestRepository.save(pickupRequest);
 
         return("Pickup Request created");
+    }
+
+    private Address findOrCreateAddress(com.swiftparcel.customerportal.dto.AddressDTO addressDTO) {
+        if (addressDTO == null) {
+            throw new IllegalArgumentException("Address information is missing");
+        }
+        return addressRepository.findByCityAndPostalCodeAndCountryCode(
+                addressDTO.getCity(),
+                addressDTO.getPostalCode(),
+                addressDTO.getCountryCode()
+        ).orElseGet(() -> {
+            Address newAddress = Address.builder()
+                    .city(addressDTO.getCity())
+                    .postalCode(addressDTO.getPostalCode())
+                    .countryCode(addressDTO.getCountryCode())
+                    .build();
+            return addressRepository.save(newAddress);
+        });
     }
 
     public boolean customerLimit(Long customerId) {
@@ -86,22 +97,21 @@ public class PickupRequestService {
         return count < 5;
     }
 
-    private String validateSameDayRules(PickupRequestDTO pickupRequestDTO, Address sender, Address recipient) {
+    private void validateSameDayRules(PickupRequestDTO pickupRequestDTO, Address sender, Address recipient) {
         if (pickupRequestDTO.getServiceType() == ServiceType.SAME_DAY) {
             if (!sender.getCountryCode().equals(recipient.getCountryCode())) {
-                return "Same-Day service is not available for cross-country routes";
+                throw new IllegalArgumentException("Same-Day service is not available for cross-country routes");
             }
             
             if (pickupRequestDTO.getPreferredPickupDate().equals(LocalDate.now())) {
                 if (LocalTime.now().isAfter(LocalTime.of(10, 0))) {
-                    return "Same-Day service must be requested before 10:00 AM on the same day";
+                    throw new IllegalArgumentException("Same-Day service must be requested before 10:00 AM on the same day");
                 }
             }
         }
-        return null;
     }
 
-    private String validateExpressLeadTime(PickupRequestDTO pickupRequestDTO) {
+    private void validateExpressLeadTime(PickupRequestDTO pickupRequestDTO) {
         if (pickupRequestDTO.getServiceType() == ServiceType.EXPRESS) {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime slotStart = LocalDateTime.of(
@@ -110,9 +120,8 @@ public class PickupRequestService {
             );
             
             if (now.isAfter(slotStart.minusHours(2))) {
-                return "Express service must be requested at least 2 hours before the time slot starts";
+                throw new IllegalArgumentException("Express service must be requested at least 2 hours before the time slot starts");
             }
         }
-        return null;
     }
 }

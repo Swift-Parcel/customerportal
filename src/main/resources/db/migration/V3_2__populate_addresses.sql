@@ -1,0 +1,20 @@
+INSERT INTO public.address (city, postal_code, country_code)
+VALUES
+       ('Debrecen', '4024', 'HU'),
+       ('Szeged', '6720', 'HU'),
+       ('Pécs', '7621', 'HU'),
+       ('Győr', '9021', 'HU'),
+       ('Miskolc', '3525', 'HU'),
+       ('Graz', '8010', 'AT'),
+       ('Salzburg', '5020', 'AT'),
+       ('Linz', '4020', 'AT'),
+       ('Innsbruck', '6020', 'AT'),
+       ('Warsaw', '00363', 'PL'),
+       ('Wrocław', '50075', 'PL'),
+       ('Gdańsk', '80831', 'PL'),
+       ('Poznań', '61001', 'PL'),
+       ('Prague', '11000', 'CZ'),
+       ('Brno', '60200', 'CZ'),
+       ('Ostrava', '70200', 'CZ'),
+       ('Bratislava', '81106', 'SK'),
+       ('Košice', '04001', 'SK');

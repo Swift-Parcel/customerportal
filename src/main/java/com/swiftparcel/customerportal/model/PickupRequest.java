@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -62,11 +63,11 @@ public class PickupRequest {
     @Column(name = "service_type", nullable = false, length = 16)
     ServiceType serviceType;
 
-    @Column(name = "declared_value_eur", nullable = false)
-    float declaredValue;
+    @Column(name = "declared_value_eur",precision = 10, scale = 2)
+    BigDecimal declaredValue;
 
-    @Column(name = "quoted_price_eur")
-    float quotedPrice;
+    @Column(name = "quoted_price_eur", precision = 10, scale = 2)
+    BigDecimal quotedPrice;
 
     @Column(name = "preferred_pickup_date", nullable = false)
     LocalDate preferredPickupDate;

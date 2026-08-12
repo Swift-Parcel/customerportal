@@ -1,43 +1,38 @@
 package com.swiftparcel.customerportal.controller;
 
 import com.swiftparcel.customerportal.dto.ApiResponse;
-
+import com.swiftparcel.customerportal.dto.CaseChangeDTO;
 import com.swiftparcel.customerportal.dto.DeliveryChangeDTO;
-import com.swiftparcel.customerportal.dto.ParcelStatusWebhookDTO;
-import com.swiftparcel.customerportal.model.NotificationPreference;
 import com.swiftparcel.customerportal.model.enums.NotificationEventType;
+import com.swiftparcel.customerportal.service.ComplaintCaseService;
 import com.swiftparcel.customerportal.service.DeliveryService;
 import com.swiftparcel.customerportal.service.NotificationService;
-import com.swiftparcel.customerportal.service.ParcelService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/webhooks")
 @RequiredArgsConstructor
 @Slf4j
-public class NotificationController {
+public class WebhookController {
 
-    private final NotificationService notificationService;
     private final DeliveryService deliveryService;
-    private final ParcelService parcelService;
-
-    @PatchMapping("/api/customerportal/customer/{customerId}/notification-preference")
-    @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<ApiResponse> updatingNotificationPreference(@PathVariable Long customerId, @Valid @RequestBody NotificationPreference updateRequest) {
-        return notificationService.updateNotificationPreference(customerId, updateRequest)
-                .map( _ -> ResponseEntity.ok(new ApiResponse("Notification preference updated successfully")))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Customer not found")));
-    }
+    private final NotificationService notificationService;
+    private final ComplaintCaseService complaintCaseService;
 
     @PostMapping("/cases/delivery-change")
     @SecurityRequirement(name = "apiKey")
+    @Transactional
     public ResponseEntity<ApiResponse> deliveryChangeWebhook(@RequestBody DeliveryChangeDTO deliveryChangeDTO) {
+        log.info("Received delivery change webhook for case: {}", deliveryChangeDTO.getCaseNumber());
+        
         deliveryService.updateDeliveryChangeRequest(deliveryChangeDTO)
                 .ifPresent(request -> {
                     String message = "Your Delivery change request for the case: "
@@ -56,21 +51,19 @@ public class NotificationController {
     }
 
 
-    @PostMapping("/api/webhooks/parcels/status")
+    @PostMapping("/cases/status")
     @SecurityRequirement(name = "apiKey")
-    public ResponseEntity<ApiResponse> parcelStatusWebhook(
-            @Valid @RequestBody ParcelStatusWebhookDTO dto) {
+    public ResponseEntity<ApiResponse> caseChangeWebhook(@RequestBody CaseChangeDTO caseChangeDTO) {
+        log.info("Received case status change webhook for case: {}", caseChangeDTO.getCaseNumber());
 
-        log.info("Received parcel status webhook for tracking number: {}", dto.getTrackingNumber());
-
-        parcelService.updateParcelStatus(dto)
-                .ifPresent(parcel -> {
-                    String message = "Your parcel " + parcel.getTrackingNumber()
-                            + " status changed to " + parcel.getStatus();
+        complaintCaseService.updateCaseStatus(caseChangeDTO)
+                .ifPresent(updatedCase -> {
+                    String message = "Your case " + updatedCase.getCaseNumber()
+                            + " status changed to " + updatedCase.getStatus();
 
                     notificationService.processNotification(
-                            parcel.getCustomer().getEmail(),
-                            NotificationEventType.PARCEL_STATUS,
+                            updatedCase.getCustomer().getEmail(),
+                            NotificationEventType.CASE_STATUS,
                             message
                     );
                 });

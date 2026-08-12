@@ -1,5 +1,6 @@
 package com.swiftparcel.customerportal.service;
 
+import com.swiftparcel.customerportal.dto.CaseChangeDTO;
 import com.swiftparcel.customerportal.dto.CaseResponse;
 import com.swiftparcel.customerportal.dto.CaseSummaryResponse;
 import com.swiftparcel.customerportal.dto.CreateCaseRequest;
@@ -19,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -115,5 +117,20 @@ public class ComplaintCaseService {
         complaintCase.setFeedbackSubmittedAt(LocalDateTime.now());
 
         caseRepository.save(complaintCase);
+    }
+
+    @Transactional
+    public Optional<ComplaintCase> updateCaseStatus(CaseChangeDTO dto) {
+        return caseRepository.findByCaseNumber(dto.getCaseNumber())
+                .filter(c -> !c.getStatus().equals(dto.getCaseStatus()))
+                .map(c -> {
+                    c.setStatus(dto.getCaseStatus());
+                    ComplaintCase updatedCase = caseRepository.save(c);
+                    // Force initialization of lazy customer email while transaction is open
+                    if (updatedCase.getCustomer() != null) {
+                        updatedCase.getCustomer().getEmail();
+                    }
+                    return updatedCase;
+                });
     }
 }
