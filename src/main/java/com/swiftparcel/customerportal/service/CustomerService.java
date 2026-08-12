@@ -1,7 +1,6 @@
 package com.swiftparcel.customerportal.service;
 
 import com.swiftparcel.customerportal.dto.backOfficeForCustomer.BackofficeAddressDTO;
-import com.swiftparcel.customerportal.dto.backOfficeForCustomer.BackofficeCustomerClient;
 import com.swiftparcel.customerportal.dto.backOfficeForCustomer.BackofficeCustomerRequest;
 import com.swiftparcel.customerportal.dto.AddressDTO;
 import com.swiftparcel.customerportal.dto.CustomerAccountRequest;
@@ -23,7 +22,7 @@ import java.util.Optional;
 public class CustomerService {
     private final CustomerRepository customerRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final BackofficeCustomerClient backofficeCustomerClient;
+    private final BackOfficeIntegrationService backOfficeIntegrationService;
 
 
     @Transactional
@@ -80,7 +79,7 @@ public class CustomerService {
                 .preferredLanguage(savedCustomer.getPreferredLanguage())
                 .build();
 
-        backofficeCustomerClient.syncCustomerToBackOffice(backofficeRequest);
+        backOfficeIntegrationService.syncCustomerToBackOffice(backofficeRequest);
 
         return CustomerAccountResponse.builder()
                 .id(savedCustomer.getId())
