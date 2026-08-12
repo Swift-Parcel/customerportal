@@ -75,15 +75,19 @@ public class PickupRequestService {
         if (addressDTO == null) {
             throw new IllegalArgumentException("Address information is missing");
         }
-        return addressRepository.findByCityAndPostalCodeAndCountryCode(
+        return addressRepository.findByCityAndPostalCodeAndCountryCodeAndStreetAndStreetNumber(
                 addressDTO.getCity(),
                 addressDTO.getPostalCode(),
-                addressDTO.getCountryCode()
+                addressDTO.getCountryCode(),
+                addressDTO.getStreet(),
+                addressDTO.getStreetNumber()
         ).orElseGet(() -> {
             Address newAddress = Address.builder()
                     .city(addressDTO.getCity())
                     .postalCode(addressDTO.getPostalCode())
                     .countryCode(addressDTO.getCountryCode())
+                    .street(addressDTO.getStreet())
+                    .streetNumber(addressDTO.getStreetNumber())
                     .build();
             return addressRepository.save(newAddress);
         });
