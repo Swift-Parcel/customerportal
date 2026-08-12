@@ -16,7 +16,7 @@ public class BackofficeCustomerClient {
 
     private final RestTemplate restTemplate;
 
-    @Value("${backoffice.api.base-url:http://localhost:3500}")
+    @Value("${app.backoffice.base-url}")
     private String backofficeBaseUrl;
 
     @Value("${app.backoffice.api-key}")

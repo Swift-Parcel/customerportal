@@ -15,6 +15,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: 'mysecretisthebestsecret'
       SPRING_DATA_REDIS_HOST: 'redis'
       SPRING_DATA_REDIS_PORT: '6379'
+      BACKOFFICE_BASE_URL: 'http://host.docker.internal:3500'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     ports:
       - '8080:8080'
 
