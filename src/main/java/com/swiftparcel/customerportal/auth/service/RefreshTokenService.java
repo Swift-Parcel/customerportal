@@ -42,7 +42,7 @@ public class RefreshTokenService {
     }
 
     // more like a check of the token, it also returns a new one if
-    @Transactional
+    @Transactional(noRollbackFor = BadCredentialsException.class)
     public RotationResult rotate(String rawToken) {
         RefreshToken stored = repository.findByTokenHash(hash(rawToken))
                 .orElseThrow(() -> new BadCredentialsException("Refresh token not recognized"));
@@ -54,7 +54,6 @@ public class RefreshTokenService {
         if (stored.isExpired()) {
             throw new BadCredentialsException("Refresh token expired");
         }
-
         stored.setRevokedAt(Instant.now());
         Customer customer = stored.getCustomer();
         return new RotationResult(customer, issue(customer));
