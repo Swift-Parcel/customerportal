@@ -1,12 +1,13 @@
 package com.swiftparcel.customerportal.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.Instant;
+import java.util.List;
 
 @Data
 @Builder
@@ -14,10 +15,10 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class ScheduleResponse {
 
-    private String trackingNumber;
-    private String status;
-    private LocalDate estimatedDeliveryDate;
-    private LocalTime slotStart;
-    private LocalTime slotEnd;
+    @JsonProperty("estimated_delivery")
+    private Instant estimatedDelivery;
+
+    @JsonProperty("time_slots")
+    private List<String> timeSlots;
 
 }
