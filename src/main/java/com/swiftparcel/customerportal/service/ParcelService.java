@@ -1,6 +1,7 @@
 package com.swiftparcel.customerportal.service;
 
 import com.swiftparcel.customerportal.dto.*;
+import com.swiftparcel.customerportal.dto.backOfficeForCustomer.BackofficeCustomerResponse;
 import com.swiftparcel.customerportal.model.Customer;
 import com.swiftparcel.customerportal.model.Parcel;
 import com.swiftparcel.customerportal.repository.CustomerRepository;

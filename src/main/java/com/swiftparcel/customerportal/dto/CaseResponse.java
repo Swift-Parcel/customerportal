@@ -25,6 +25,7 @@ public class CaseResponse {
     private CaseType caseType;
 
     private String description;
+    private String title;
 
 //    private String channel;
 

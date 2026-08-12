@@ -1,9 +1,11 @@
 package com.swiftparcel.customerportal.controller;
 
 import com.swiftparcel.customerportal.dto.*;
+import com.swiftparcel.customerportal.model.Customer;
 import com.swiftparcel.customerportal.service.ParcelService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,14 +39,12 @@ public class ParcelController {
         return parcelService.getSchedule(trackingNumber);
     }
 
-
     @PatchMapping("/{trackingNumber}/confirm-delivery")
     public ConfirmDeliveryResponse confirmDelivery(
             @PathVariable String trackingNumber,
-            @RequestBody ConfirmDeliveryRequest request) {
-        return parcelService.confirmDelivery(trackingNumber, request.customerEmail());
+            @AuthenticationPrincipal Customer customer) {
+        return parcelService.confirmDelivery(trackingNumber, customer.getEmail());
     }
-
 
     public record ConfirmDeliveryRequest(String customerEmail) {}
 

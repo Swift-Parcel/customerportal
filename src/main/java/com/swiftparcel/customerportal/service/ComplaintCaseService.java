@@ -43,18 +43,17 @@ public class ComplaintCaseService {
                 .trackingNumbers(request.getTrackingNumbers())
                 .caseType(request.getCaseType().name())
                 .description(request.getDescription())
+                .title(request.getTitle())
                 .build();
 
-        String backOfficeResponse = backOfficeService.sendCaseToBackOffice(backOfficeRequest);
-
-
-        String generatedCaseNumber = "CASE-2026-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        String CaseNumber = backOfficeService.sendCaseToBackOffice(backOfficeRequest);
 
         ComplaintCase complaintCase = ComplaintCase.builder()
-                .caseNumber(generatedCaseNumber)
+                .caseNumber(CaseNumber)
                 .trackingNumbers(request.getTrackingNumbers())
                 .caseType(request.getCaseType())
                 .description(request.getDescription())
+                .title(request.getTitle())
                 .customer(customer)
                 .build();
 
@@ -66,6 +65,7 @@ public class ComplaintCaseService {
                 .trackingNumbers(savedCase.getTrackingNumbers())
                 .caseType(savedCase.getCaseType())
                 .description(savedCase.getDescription())
+                .title(savedCase.getTitle())
                 .createdAt(savedCase.getCreatedAt())
                 .build();
 
@@ -142,19 +142,27 @@ public class ComplaintCaseService {
 
         BackOfficeCaseStatusResponse backOfficeStatus = backOfficeService.getCaseStatus(caseNumber);
 
+
+        List<String> trackingNumbers = List.copyOf(complaintCase.getTrackingNumbers());
+
+
+        List<CaseNoteResponse> notes = (backOfficeStatus.getNotes() == null)
+                ? List.of()
+                : backOfficeStatus.getNotes().stream()
+                .map(n -> CaseNoteResponse.builder()
+                        .timestamp(n.getTimestamp())
+                        .note(n.getNote())
+                        .build())
+                .toList();
+
         return CaseDetailResponse.builder()
                 .caseNumber(complaintCase.getCaseNumber())
                 .caseType(complaintCase.getCaseType())
-                .trackingNumbers(complaintCase.getTrackingNumbers())
+                .trackingNumbers(trackingNumbers)
                 .description(complaintCase.getDescription())
                 .status(backOfficeStatus.getCaseStatus())
                 .resolution(backOfficeStatus.getResolution())
-                .notes(backOfficeStatus.getNotes().stream()
-                        .map(n -> CaseNoteResponse.builder()
-                                .timestamp(n.getTimestamp())
-                                .note(n.getNote())
-                                .build())
-                        .toList())
+                .notes(notes)
                 .createdAt(complaintCase.getCreatedAt())
                 .updatedAt(complaintCase.getUpdatedAt())
                 .build();
